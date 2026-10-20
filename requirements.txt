@@ -1,0 +1,11 @@
+pymc>=5.16
+arviz
+numpy
+pandas
+scipy
+matplotlib
+h5netcdf
+streamlit
+plotly
+ipykernel
+pytest
