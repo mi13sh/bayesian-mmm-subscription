@@ -1,0 +1,116 @@
+{
+  "seed": 2026,
+  "channels": {
+    "search": {
+      "decay": 0.15,
+      "half_sat": 9.0,
+      "slope": 2.0,
+      "max_subs": 260,
+      "clv": 190
+    },
+    "social": {
+      "decay": 0.4,
+      "half_sat": 18.0,
+      "slope": 1.5,
+      "max_subs": 380,
+      "clv": 150
+    },
+    "display": {
+      "decay": 0.3,
+      "half_sat": 4.0,
+      "slope": 1.2,
+      "max_subs": 45,
+      "clv": 140
+    },
+    "affiliate": {
+      "decay": 0.05,
+      "half_sat": 5.0,
+      "slope": 1.5,
+      "max_subs": 120,
+      "clv": 110
+    },
+    "tv": {
+      "decay": 0.7,
+      "half_sat": 8.0,
+      "slope": 1.5,
+      "max_subs": 220,
+      "clv": 200
+    },
+    "email": {
+      "decay": 0.2,
+      "half_sat": 110.0,
+      "slope": 1.5,
+      "max_subs": 150,
+      "clv": 230
+    }
+  },
+  "baseline": {
+    "subs": 600,
+    "clv": 210,
+    "growth_over_period": 0.15
+  },
+  "season_bumps": [
+    {
+      "name": "january_peak",
+      "week": 2,
+      "width": 2.5,
+      "size": 0.22
+    },
+    {
+      "name": "september_peak",
+      "week": 37,
+      "width": 2.5,
+      "size": 0.16
+    },
+    {
+      "name": "summer_lull",
+      "week": 31,
+      "width": 4.0,
+      "size": -0.06
+    },
+    {
+      "name": "december_dip",
+      "week": 51,
+      "width": 1.5,
+      "size": -0.28
+    }
+  ],
+  "product_changes": {
+    "onboarding_v2": {
+      "date": "2023-09-04",
+      "conv_lift": 0.06,
+      "clv_lift": 0.0
+    },
+    "checkout_redesign": {
+      "date": "2024-06-03",
+      "conv_lift": 0.08,
+      "clv_lift": 0.0
+    },
+    "annual_plan": {
+      "date": "2025-05-05",
+      "conv_lift": 0.0,
+      "clv_lift": 0.1
+    }
+  },
+  "prices": [
+    [
+      "2023-01-02",
+      29.9
+    ],
+    [
+      "2024-04-01",
+      32.9
+    ],
+    [
+      "2025-03-03",
+      34.9
+    ]
+  ],
+  "price_elasticity_subs": -0.7,
+  "price_elasticity_clv": 0.9,
+  "promo": {
+    "conv_lift": 0.25,
+    "clv_lift": -0.15
+  },
+  "noise_sd": 0.05
+}
