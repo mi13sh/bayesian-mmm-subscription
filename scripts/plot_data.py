@@ -11,7 +11,7 @@ BLUE, INK, MUTED, GRID = "#2a78d6", "#0b0b0b", "#52514e", "#e4e3df"
 df = pd.read_csv("data/weekly.csv", parse_dates=["week"], index_col="week")
 
 panels = [
-    ("pclv_new_subs_eur", "pCLV of new subscriptions (EUR / week)"),
+    ("p_revenue_eur", "pRevenue of new subscribers (EUR / week)"),
     ("new_subs", "New paid subscriptions / week"),
     ("spend_search", "Paid search spend (EUR)"),
     ("spend_social", "Paid social spend (EUR)"),
@@ -34,7 +34,7 @@ for ax, (col, title) in zip(axes.flat, panels):
     ax.grid(axis="y", color=GRID, lw=0.6)
     ax.spines[["top", "right"]].set_visible(False)
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:,.0f}"))
-    if col == "pclv_new_subs_eur":
+    if col == "p_revenue_eur":
         for name, date in launches.items():
             ax.axvline(date, color=MUTED, lw=0.8, ls="--")
             ax.text(date, ax.get_ylim()[1], f" {name}", color=MUTED, fontsize=8, va="top")

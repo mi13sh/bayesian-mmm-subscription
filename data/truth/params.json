@@ -5,50 +5,41 @@
       "decay": 0.15,
       "half_sat": 9.0,
       "slope": 2.0,
-      "max_subs": 260,
-      "clv": 190
+      "max_subs": 260
     },
     "social": {
       "decay": 0.4,
       "half_sat": 18.0,
       "slope": 1.5,
-      "max_subs": 380,
-      "clv": 150
+      "max_subs": 380
     },
     "display": {
       "decay": 0.3,
       "half_sat": 4.0,
       "slope": 1.2,
-      "max_subs": 45,
-      "clv": 140
+      "max_subs": 45
     },
     "affiliate": {
       "decay": 0.05,
       "half_sat": 5.0,
       "slope": 1.5,
-      "max_subs": 120,
-      "clv": 110
+      "max_subs": 120
     },
     "tv": {
       "decay": 0.7,
       "half_sat": 8.0,
       "slope": 1.5,
-      "max_subs": 220,
-      "clv": 200
+      "max_subs": 220
     },
     "email": {
       "decay": 0.2,
       "half_sat": 110.0,
       "slope": 1.5,
-      "max_subs": 150,
-      "clv": 230
+      "max_subs": 150
     }
   },
-  "baseline": {
-    "subs": 600,
-    "clv": 210,
-    "growth_over_period": 0.15
-  },
+  "baseline_subs": 600,
+  "growth_over_period": 0.15,
   "season_bumps": [
     {
       "name": "january_peak",
@@ -78,18 +69,15 @@
   "product_changes": {
     "onboarding_v2": {
       "date": "2023-09-04",
-      "conv_lift": 0.06,
-      "clv_lift": 0.0
+      "conv_lift": 0.06
     },
     "checkout_redesign": {
       "date": "2024-06-03",
-      "conv_lift": 0.08,
-      "clv_lift": 0.0
+      "conv_lift": 0.08
     },
     "annual_plan": {
       "date": "2025-05-05",
-      "conv_lift": 0.0,
-      "clv_lift": 0.1
+      "conv_lift": 0.0
     }
   },
   "prices": [
@@ -107,10 +95,108 @@
     ]
   ],
   "price_elasticity_subs": -0.7,
-  "price_elasticity_clv": 0.9,
-  "promo": {
-    "conv_lift": 0.25,
-    "clv_lift": -0.15
+  "price_effect_on_churn": 0.5,
+  "promo_conv_lift": 0.25,
+  "discount": 0.5,
+  "attributes": {
+    "country": {
+      "levels": [
+        "DE",
+        "AT_CH",
+        "other"
+      ],
+      "default": [
+        0.6,
+        0.2,
+        0.2
+      ],
+      "by_source": {
+        "affiliate": [
+          0.5,
+          0.2,
+          0.3
+        ]
+      }
+    },
+    "device": {
+      "levels": [
+        "desktop",
+        "mobile"
+      ],
+      "default": [
+        0.55,
+        0.45
+      ],
+      "by_source": {
+        "social": [
+          0.3,
+          0.7
+        ],
+        "display": [
+          0.45,
+          0.55
+        ],
+        "email": [
+          0.65,
+          0.35
+        ]
+      }
+    },
+    "payment": {
+      "levels": [
+        "card",
+        "paypal",
+        "sepa"
+      ],
+      "default": [
+        0.45,
+        0.35,
+        0.2
+      ],
+      "by_source": {
+        "affiliate": [
+          0.4,
+          0.45,
+          0.15
+        ]
+      }
+    }
   },
-  "noise_sd": 0.05
+  "annual_share": {
+    "default": 0.22,
+    "promo": 0.32,
+    "by_source": {
+      "email": 0.28,
+      "affiliate": 0.18
+    }
+  },
+  "base_monthly_churn": 0.12,
+  "churn_effects": {
+    "country": {
+      "DE": 0.0,
+      "AT_CH": -0.1,
+      "other": 0.25
+    },
+    "device": {
+      "desktop": 0.0,
+      "mobile": 0.2
+    },
+    "payment": {
+      "card": 0.0,
+      "paypal": 0.1,
+      "sepa": -0.15
+    },
+    "discounted": 0.25
+  },
+  "channel_churn_effect": {
+    "affiliate": 0.1,
+    "social": 0.05
+  },
+  "annual_renewal_rate": 0.55,
+  "prediction_model": {
+    "device_mobile_effect": 0.15,
+    "v2_date": "2025-01-06",
+    "v2_uplift": 0.05
+  },
+  "weekly_noise_sd": 0.04
 }
