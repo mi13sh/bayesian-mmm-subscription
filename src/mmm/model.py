@@ -56,7 +56,16 @@ def _media_effect(media, decay, half_sat, slope):
     return 1 / (1 + (half_sat / x) ** slope)
 
 
-def build_model(prep: Prepared, rows: slice | None = None) -> pm.Model:
+def build_model(prep: Prepared, rows: slice | None = None,
+                lift_tests: list | None = None) -> pm.Model:
+    """Build the MMM on the given rows (training weeks by default).
+
+    `lift_tests` is a list of experiment results, each a dict with channel,
+    spend_before, spend_after (weekly EUR), lift_per_week and sd. Each one is
+    added as an observation of how much the response curve rises between the
+    two spend levels. A test that scales spend up pins down the slope of the
+    curve where budget decisions are made, which the weekly data alone cannot.
+    """
     rows = rows if rows is not None else slice(0, prep.n_train)
     coords = {"channel": MEDIA, "paid_channel": PAID, "lag": np.arange(MAX_LAG + 1), "control": prep.control_names}
     control_sd = np.array([CONTROL_PRIOR_SD.get(n, FOURIER_PRIOR_SD) for n in prep.control_names])
@@ -75,8 +84,7 @@ def build_model(prep: Prepared, rows: slice | None = None) -> pm.Model:
 
         # Effect size implied by each paid channel's ROI over the training weeks
         roi_median, roi_sd = ROI_PRIOR[prep.target_name]
-        roi = pm.LogNormal("roi", mu=np.log(roi_median), sigma=roi_sd,
-                           dims="paid_channel")
+        roi = pm.LogNormal("roi", mu=np.log(roi_median), sigma=roi_sd, dims="paid_channel")
         train_media = pt.constant(prep.media_lags[: prep.n_train])
         train_sat = _media_effect(train_media, decay, half_sat, slope).sum(axis=0)
         n_paid = len(PAID)
@@ -92,6 +100,17 @@ def build_model(prep: Prepared, rows: slice | None = None) -> pm.Model:
         intercept = pm.Normal("intercept", mu=0.6, sigma=0.25)
         gamma = pm.Normal("gamma", mu=0, sigma=control_sd, dims="control")
         baseline = intercept + pt.dot(controls, gamma)
+
+        # --- Lift tests ---
+        for k, test in enumerate(lift_tests or []):
+            i = MEDIA.index(test["channel"])
+            before = max(test["spend_before"], 1.0) / prep.media_scale[i]
+            after = test["spend_after"] / prep.media_scale[i]
+            curve = lambda x: 1 / (1 + (half_sat[i] / x) ** slope[i])
+            lift = beta[i] * (curve(after) - curve(before))
+            pm.Normal(f"lift_test_{k}_{test['channel']}", mu=lift,
+                      sigma=test["sd"] / prep.y_scale,
+                      observed=test["lift_per_week"] / prep.y_scale)
 
         mu = baseline + media_effect
         sigma = pm.HalfNormal("sigma", sigma=0.1)

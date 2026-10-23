@@ -1,0 +1,10 @@
+{
+  "target": "p_revenue",
+  "sampling_minutes": 2.7,
+  "divergences": 0,
+  "max_r_hat": 1.0060325646246926,
+  "min_ess_bulk": 777.6047549898893,
+  "train_mape": 0.0355,
+  "holdout_mape": 0.0569,
+  "holdout_coverage_90": 0.6666666666666666
+}

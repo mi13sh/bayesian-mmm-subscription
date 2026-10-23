@@ -3,6 +3,9 @@
 Usage:
     python scripts/fit_model.py --target p_revenue
     python scripts/fit_model.py --target new_subs
+    python scripts/fit_model.py --target p_revenue --calibrate
+        adds the lift-test results in data/lift_tests.json to the model and
+        writes to artifacts/p_revenue_calibrated/
 
 Writes to artifacts/<target>/:
     prior_predictive.png   do the priors allow plausible data, before seeing any?
@@ -62,8 +65,13 @@ def true_answers(prep, truth_dir="data/truth"):
     return out
 
 
-def main(target, draws, tune, chains, seed):
+def main(target, draws, tune, chains, seed, calibrate=False):
+    lift_tests = None
     out = Path("artifacts") / target
+    if calibrate:
+        lift_tests = json.loads(Path("data/lift_tests.json").read_text())[target]
+        out = Path("artifacts") / f"{target}_calibrated"
+        print(f"Calibrating with {len(lift_tests)} lift test(s)")
     out.mkdir(parents=True, exist_ok=True)
     df = load_weekly()
     prep = prepare(df, target)
@@ -71,7 +79,7 @@ def main(target, draws, tune, chains, seed):
     scale = prep.y_scale
 
     # 1. Prior predictive check
-    model = build_model(prep, train)
+    model = build_model(prep, train, lift_tests)
     with model:
         prior = pm.sample_prior_predictive(draws=500, random_seed=seed)
     fig, ax = plt.subplots(figsize=(10, 3.5))
@@ -87,7 +95,7 @@ def main(target, draws, tune, chains, seed):
     # 2. Sample
     start = time.time()
     with model:
-        idata = pm.sample(draws=draws, tune=tune, chains=chains, target_accept=0.9,
+        idata = pm.sample(draws=draws, tune=tune, chains=chains, target_accept=0.95,
                           nuts_sampler="nutpie", random_seed=seed, progressbar=False)
     minutes = (time.time() - start) / 60
 
@@ -176,5 +184,7 @@ if __name__ == "__main__":
     p.add_argument("--tune", type=int, default=1000)
     p.add_argument("--chains", type=int, default=4)
     p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--calibrate", action="store_true",
+                   help="add the lift tests in data/lift_tests.json to the model")
     a = p.parse_args()
-    main(a.target, a.draws, a.tune, a.chains, a.seed)
+    main(a.target, a.draws, a.tune, a.chains, a.seed, a.calibrate)

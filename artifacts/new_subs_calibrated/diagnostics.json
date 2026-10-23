@@ -1,0 +1,10 @@
+{
+  "target": "new_subs",
+  "sampling_minutes": 2.8,
+  "divergences": 0,
+  "max_r_hat": 1.006414128182889,
+  "min_ess_bulk": 897.7120094579291,
+  "train_mape": 0.0335,
+  "holdout_mape": 0.0518,
+  "holdout_coverage_90": 0.75
+}

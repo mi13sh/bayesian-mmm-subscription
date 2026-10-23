@@ -1,0 +1,15 @@
+{
+  "_note": "Lift tests used to calibrate the MMM. These are placeholders for two 6-week geo tests: paid social raised by 50% in test regions, and affiliate cut by 50%. Project 2 (geo-holdout test designer) will produce real readouts and replace them. Spend is weekly EUR at national scale; lift_per_week is the measured change in the target per week (negative for a cut), sd its standard error.",
+  "p_revenue": [
+    {"channel": "social", "spend_before": 11165, "spend_after": 16750,
+     "lift_per_week": 14000, "sd": 3500, "source": "placeholder scale-up geo test"},
+    {"channel": "affiliate", "spend_before": 5240, "spend_after": 2620,
+     "lift_per_week": -7400, "sd": 2000, "source": "placeholder scale-down geo test"}
+  ],
+  "new_subs": [
+    {"channel": "social", "spend_before": 11165, "spend_after": 16750,
+     "lift_per_week": 54, "sd": 14, "source": "placeholder scale-up geo test"},
+    {"channel": "affiliate", "spend_before": 5240, "spend_after": 2620,
+     "lift_per_week": -29, "sd": 8, "source": "placeholder scale-down geo test"}
+  ]
+}
