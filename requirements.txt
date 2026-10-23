@@ -1,10 +1,12 @@
 pymc>=5.16
+nutpie
 arviz
 numpy
 pandas
 scipy
 matplotlib
 h5netcdf
+h5py
 streamlit
 plotly
 ipykernel
