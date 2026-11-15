@@ -1,8 +1,8 @@
 ,current_spend,expected_value,expected_value,cautious,cautious
 ,,planned_spend,change_%,planned_spend,change_%
 channel,,,,,
-search,11475.0,17212.4,50.0,13394.2,16.7
-social,11164.9,11354.3,1.7,13828.7,23.9
-display,4137.1,4241.7,2.5,4849.7,17.2
-affiliate,5239.2,5976.4,14.1,6712.3,28.1
-tv,1827.8,1827.8,0.0,1827.8,0.0
+search,24006.1,26906.4,12.1,24006.1,0.0
+social,22252.0,21085.4,-5.2,22252.0,0.0
+display,7205.7,5876.8,-18.4,7205.7,0.0
+influencer,10229.1,9824.2,-4.0,10229.1,0.0
+ctv,8316.9,8316.9,0.0,8316.9,0.0

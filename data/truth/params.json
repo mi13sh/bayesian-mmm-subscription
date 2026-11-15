@@ -3,42 +3,42 @@
   "channels": {
     "search": {
       "decay": 0.15,
-      "half_sat": 9.0,
+      "half_sat": 19.0,
       "slope": 2.0,
-      "max_subs": 260
+      "max_subs": 560
     },
     "social": {
       "decay": 0.4,
-      "half_sat": 18.0,
+      "half_sat": 38.0,
       "slope": 1.5,
-      "max_subs": 380
+      "max_subs": 800
     },
     "display": {
       "decay": 0.3,
-      "half_sat": 4.0,
+      "half_sat": 7.0,
       "slope": 1.2,
-      "max_subs": 45
+      "max_subs": 80
     },
-    "affiliate": {
-      "decay": 0.05,
-      "half_sat": 5.0,
+    "influencer": {
+      "decay": 0.35,
+      "half_sat": 11.0,
       "slope": 1.5,
-      "max_subs": 120
+      "max_subs": 260
     },
-    "tv": {
-      "decay": 0.7,
-      "half_sat": 8.0,
+    "ctv": {
+      "decay": 0.6,
+      "half_sat": 17.0,
       "slope": 1.5,
-      "max_subs": 220
+      "max_subs": 460
     },
     "email": {
       "decay": 0.2,
-      "half_sat": 110.0,
+      "half_sat": 230.0,
       "slope": 1.5,
-      "max_subs": 150
+      "max_subs": 320
     }
   },
-  "baseline_subs": 600,
+  "baseline_subs": 1300,
   "growth_over_period": 0.15,
   "season_bumps": [
     {
@@ -83,62 +83,129 @@
   "prices": [
     [
       "2023-01-02",
-      29.9
+      19.99
     ],
     [
       "2024-04-01",
-      32.9
+      21.99
     ],
     [
       "2025-03-03",
-      34.9
+      23.99
     ]
   ],
+  "tier_price": {
+    "tier_1": 1.0,
+    "tier_2": 0.75,
+    "tier_3": 0.5
+  },
   "price_elasticity_subs": -0.7,
   "price_effect_on_churn": 0.5,
   "promo_conv_lift": 0.25,
   "discount": 0.5,
+  "ctv_flights": [
+    [
+      "2023-02-06",
+      4,
+      32
+    ],
+    [
+      "2023-05-08",
+      3,
+      28
+    ],
+    [
+      "2023-09-04",
+      4,
+      38
+    ],
+    [
+      "2024-01-08",
+      4,
+      35
+    ],
+    [
+      "2024-04-15",
+      3,
+      30
+    ],
+    [
+      "2024-09-02",
+      4,
+      40
+    ],
+    [
+      "2025-01-13",
+      4,
+      33
+    ],
+    [
+      "2025-05-05",
+      4,
+      36
+    ],
+    [
+      "2025-09-08",
+      4,
+      38
+    ]
+  ],
   "attributes": {
-    "country": {
+    "market_tier": {
       "levels": [
-        "DE",
-        "AT_CH",
-        "other"
+        "tier_1",
+        "tier_2",
+        "tier_3"
       ],
       "default": [
-        0.6,
-        0.2,
-        0.2
+        0.55,
+        0.3,
+        0.15
       ],
       "by_source": {
-        "affiliate": [
+        "social": [
           0.5,
-          0.2,
-          0.3
+          0.32,
+          0.18
+        ],
+        "influencer": [
+          0.45,
+          0.33,
+          0.22
         ]
       }
     },
     "device": {
       "levels": [
         "desktop",
-        "mobile"
+        "ios",
+        "android"
       ],
       "default": [
-        0.55,
-        0.45
+        0.45,
+        0.33,
+        0.22
       ],
       "by_source": {
         "social": [
-          0.3,
-          0.7
+          0.25,
+          0.42,
+          0.33
         ],
-        "display": [
-          0.45,
-          0.55
+        "influencer": [
+          0.15,
+          0.5,
+          0.35
         ],
         "email": [
-          0.65,
-          0.35
+          0.6,
+          0.25,
+          0.15
+        ],
+        "ctv": [
+          0.5,
+          0.3,
+          0.2
         ]
       }
     },
@@ -146,18 +213,89 @@
       "levels": [
         "card",
         "paypal",
-        "sepa"
+        "app_store",
+        "wallet"
       ],
       "default": [
         0.45,
-        0.35,
-        0.2
+        0.2,
+        0.2,
+        0.15
       ],
       "by_source": {
-        "affiliate": [
-          0.4,
-          0.45,
+        "social": [
+          0.35,
+          0.15,
+          0.35,
           0.15
+        ],
+        "influencer": [
+          0.3,
+          0.15,
+          0.4,
+          0.15
+        ]
+      }
+    },
+    "age_band": {
+      "levels": [
+        "18-24",
+        "25-34",
+        "35-44",
+        "45+"
+      ],
+      "default": [
+        0.18,
+        0.36,
+        0.27,
+        0.19
+      ],
+      "by_source": {
+        "influencer": [
+          0.35,
+          0.4,
+          0.17,
+          0.08
+        ],
+        "ctv": [
+          0.1,
+          0.3,
+          0.32,
+          0.28
+        ],
+        "social": [
+          0.25,
+          0.38,
+          0.24,
+          0.13
+        ]
+      }
+    },
+    "sale_hook": {
+      "levels": [
+        "free_trial",
+        "feature_led",
+        "bundle",
+        "price_offer"
+      ],
+      "default": [
+        0.35,
+        0.35,
+        0.15,
+        0.15
+      ],
+      "by_source": {
+        "search": [
+          0.25,
+          0.5,
+          0.15,
+          0.1
+        ],
+        "influencer": [
+          0.45,
+          0.25,
+          0.1,
+          0.2
         ]
       }
     }
@@ -167,36 +305,51 @@
     "promo": 0.32,
     "by_source": {
       "email": 0.28,
-      "affiliate": 0.18
+      "influencer": 0.16
     }
   },
-  "base_monthly_churn": 0.12,
+  "base_monthly_churn": 0.11,
   "churn_effects": {
-    "country": {
-      "DE": 0.0,
-      "AT_CH": -0.1,
-      "other": 0.25
+    "market_tier": {
+      "tier_1": 0.0,
+      "tier_2": 0.1,
+      "tier_3": 0.25
     },
     "device": {
       "desktop": 0.0,
-      "mobile": 0.2
+      "ios": -0.05,
+      "android": 0.2
     },
     "payment": {
       "card": 0.0,
       "paypal": 0.1,
-      "sepa": -0.15
+      "app_store": 0.05,
+      "wallet": -0.05
     },
-    "discounted": 0.25
-  },
-  "channel_churn_effect": {
-    "affiliate": 0.1,
-    "social": 0.05
+    "age_band": {
+      "18-24": 0.3,
+      "25-34": 0.05,
+      "35-44": 0.0,
+      "45+": -0.1
+    },
+    "sale_hook": {
+      "free_trial": 0.2,
+      "feature_led": -0.05,
+      "bundle": -0.1,
+      "price_offer": 0.15
+    },
+    "discounted": 0.25,
+    "acquisition_channel": {
+      "organic": 0.0,
+      "search": 0.0,
+      "social": 0.03,
+      "display": 0.02,
+      "influencer": 0.05,
+      "ctv": 0.0,
+      "email": -0.02
+    }
   },
   "annual_renewal_rate": 0.55,
-  "prediction_model": {
-    "device_mobile_effect": 0.15,
-    "v2_date": "2025-01-06",
-    "v2_uplift": 0.05
-  },
+  "prediction_error_sd": 0.2,
   "weekly_noise_sd": 0.04
 }

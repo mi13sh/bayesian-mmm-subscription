@@ -1,153 +1,141 @@
-# Bayesian marketing mix model for a subscription business
+# Bayesian marketing mix model for a B2C subscription business
 
-Which marketing channels drive the predicted revenue of new subscribers, and should next quarter's budget move? This project answers that with a Bayesian marketing mix model (MMM) in PyMC, then checks every answer against a known ground truth.
+**Question:** which channels drive the value of new subscribers, and should the media budget move?
 
-Built on synthetic data so that the true effect of every channel is known. That makes it possible to show not just what the model says, but where it is right and where it is wrong.
+A Bayesian marketing mix model (MMM) in PyMC for a multi-market subscription product spending about $75k a week on media. The data is simulated, so every answer can be checked against the truth.
 
 ## Key findings
 
-- **The model fits well and recovers the true return of every channel within its 90% interval.** Forecast error on 12 held-out weeks is 5.8%.
-- **A budget optimiser that trusts the model's best guess loses money.** It recommends cutting paid social by 50% with an 82% chance of winning. In the true business, that plan loses 5.6% of media-driven pRevenue.
-- **The cause is a curve the data cannot pin down.** The model thinks social is close to saturated. In reality it has the most room to grow. Weekly data shows how much a channel returns on average, but not how much the next euro returns.
-- **Experiments and caution fix it.** Adding two lift tests to the model and only moving budget where the gain survives the model's uncertainty turns a loss into the right call: hold the current split, and test search next.
+1. **The model reads the past well.** It forecasts 12 unseen weeks within 5.9%, and the true return of every channel falls inside its estimated range.
+2. **Acting on its best guess would lose money.** A budget optimiser that trusts the model's central estimate moves money out of paid social and loses $3.1k of pRevenue a week, about $160k a year.
+3. **The weak point is the next dollar, not the average one.** The model knows roughly what each channel has returned. It does not know what an extra dollar would return, and that is what a budget decision depends on.
+4. **Two experiments plus a cautious decision rule fix it.** With two lift tests in the model, its best plan turns a small real gain. The cautious rule declines to move budget on what is close to a coin flip.
+
+## Business implications
+
+- **Use the MMM to decide where to test, and experiments to decide where to spend.** The model is reliable on direction and on average returns, but not on marginal ones.
+- **Reallocating a fixed budget is worth little here, and getting it wrong costs more.** The best possible reshuffle adds 3.3% to media-driven pRevenue; the naive plan loses 2.4%.
+- **Placing new budget well is worth more.** With 20% more budget, the calibrated model places the extra money for $19.3k a week of pRevenue, against $13.3k from the uncalibrated model: about $315k a year from the same spend.
+- **Design tests around the decision.** To decide whether to scale a channel, test scaling it. Switching it off only shows its average return.
 
 ## The business
 
-A B2C subscription product sold in Germany, Austria and Switzerland, simulated week by week from January 2023 to December 2025.
+A subscription product sold in three groups of markets, priced in USD, simulated weekly from January 2023 to December 2025.
 
 | | |
 |---|---|
-| Subscribers | about 184,000, 900 to 1,600 a week |
-| Paid channels | paid search, paid social, display, affiliate, TV (in flights) |
-| Owned channel | email, measured as accounts reached |
-| Seasonality | peaks in January and September, low point in late December |
-| Other drivers | Black Friday promos, three product launches, two price increases |
-| Media budget | about €34,000 a week |
+| New subscribers | about 395,000 in total, 1,900 to 3,300 a week |
+| Markets | three price tiers (tier 2 pays 75% and tier 3 pays 50% of the tier 1 price) |
+| Paid media | search, paid social, display, influencer, CTV (connected TV, run in flights) |
+| Owned media | email, measured as accounts reached |
+| Media budget | about $75k a week on average; CTV flights push some weeks above $100k |
+| Other drivers | January and September peaks, a late-December low, Black Friday promos, three product launches, two price rises |
 
 ![Simulated data](artifacts/data_overview.png)
 
-Two channels are deliberately hard to measure: display is small, and affiliate spend moves with search spend (84% correlated). Real marketing data has both problems.
+*Weekly pRevenue rises with each product launch and dips every December. Influencer budgets follow the same seasonal pattern as search (82% correlated), which makes the two hard to separate, as in most real media plans.*
 
-## The target: pRevenue
+## What the model explains: pRevenue
 
-The model explains **pRevenue**: the predicted 24-month revenue of everyone who subscribed that week. Each subscriber's pRevenue comes from a separate prediction model that uses their attributes (plan, country, device, payment method, discount), as a CLV model would in practice.
+**pRevenue** is the predicted 24-month revenue of each week's new subscribers. A separate CLV model (customer lifetime value) scores each subscriber on plan, market tier, device, payment method, age band, sale hook (the offer that converted them), promo discount and acquisition channel. Earlier CLV analysis found that channel adds little once the other attributes are known; that is re-checked as data grows and would feed back into the MMM if it changed.
 
-This rewards channels that bring valuable subscribers, not just many of them, and it is available the week a subscriber joins. It also has risks, which the simulation includes on purpose:
+pRevenue rewards channels that bring valuable subscribers, not just many, and is known the week someone joins. A second model on new-subscriber counts runs alongside to compare volume with value.
 
-- **The prediction model cannot see the channel.** Affiliate subscribers churn a little faster than their attributes suggest, so their pRevenue is 13% too high, against 4% for search. The MMM inherits that error and has no way to detect it.
-- **Prediction models get updated.** Version 2 of the pRevenue model, from January 2025, predicts 5% higher across the board. To the MMM, that looks like a real change in the business.
+## How the model works
 
-A second model on new subscriptions runs alongside it, to compare volume with value.
+Weekly pRevenue = baseline + the effect of each channel + noise.
 
-## The model
-
-Weekly pRevenue = baseline + effect of each channel + noise.
-
-- **Baseline:** trend, yearly seasonality, promo weeks, the three product launches, and price.
-- **Channel effects:** each channel's spend carries over into later weeks (adstock), then runs into diminishing returns (a Hill saturation curve).
-- **Priors on return per euro:** instead of priors on abstract effect sizes, each paid channel starts from "a euro of spend usually returns between €0.6 and €6.3 of pRevenue". That's a belief a marketer can challenge. My first version, with priors on effect size, gave media 57% of the credit against a true 42%.
-- **Lift tests (optional):** an experiment result enters the model as an observation of how much pRevenue rises between two spend levels.
-
-Sampling takes about 3 minutes on a 2-core cloud machine.
+- **Baseline:** trend, seasonality, promo weeks, product launches and price.
+- **Carryover (adstock):** part of this week's spend still works next week. CTV carries over longest.
+- **Diminishing returns (saturation):** each extra dollar in a channel buys a little less than the one before.
+- **Priors on return per dollar:** a prior is the model's starting assumption. Each paid channel starts from "a dollar usually returns $0.5 to $4.7 of pRevenue", a belief a marketer can challenge.
+- **Lift tests (optional):** an experiment result, such as "raising social spend by 50% added $15k a week", enters as a measured point on that channel's response curve.
 
 ## Does it work?
 
-All runs converge cleanly: no divergences, all R-hat at or below 1.01.
-
 ![Model fit](artifacts/p_revenue/fit.png)
 
-Error is 3.5% on training weeks and 5.8% on the 12 held-out weeks. The forecast band covers 8 of those 12 weeks. It misses around Black Friday, because the model treats a promo as a fixed bump while its real effect grows with demand.
+*Fitted pRevenue tracks the actual series closely (3.2% error in training, 5.9% on the 12 held-out weeks). The forecast misses the Black Friday spike and the December low after it: the model treats a promo as a fixed bump, although its real effect grows with demand.*
 
-**Estimated vs true return per euro (pRevenue):**
+![Estimated vs true](artifacts/p_revenue/recovery.png)
 
-![Recovery](artifacts/p_revenue/recovery.png)
+*Every true value sits inside the model's 90% range. Display and influencer are overrated: display is too small to measure, and influencer moves with search. Social is underrated, because its slow budget drift looks like trend. Email gets 13% of the credit against a true 6.5%, because it peaks in the same weeks as seasonal demand.*
 
-| Channel | Estimate (90% interval) | Truth | Why it misses |
-|---|---|---|---|
-| Paid search | 3.8 (1.1 to 7.8) | 3.4 | shares credit with affiliate |
-| Paid social | 1.6 (0.6 to 3.2) | 2.6 | slow budget drift looks like trend |
-| Display | 2.9 (0.8 to 6.4) | 1.3 | too small to measure; prior pulls it up |
-| Affiliate | 3.5 (0.8 to 8.2) | 2.8 | shares credit with search |
-| TV | 3.5 (2.1 to 5.1) | 2.8 | flights make it the easiest to measure |
+## From model to budget
 
-Every truth falls inside its interval, for both targets. Email gets 10% of the credit against a true 7%, because it peaks in the same weeks as seasonal demand.
+The optimiser reshapes a fixed weekly budget across search, social, display and influencer. CTV is held, because it is bought in flights rather than at a steady weekly level. No channel moves more than 50% from today's spend, the range the model has seen.
 
-## From model to budget decision
-
-The optimiser splits a fixed weekly budget across search, social, display and affiliate. TV is held, because it runs in flights rather than at a steady weekly level. No channel may move more than 50% from today's spend, since the model has never seen spend outside that range.
-
-It compares two ways of choosing a plan:
-
-- **Expected value:** maximise the model's best guess of pRevenue.
-- **Cautious:** maximise the expected gain minus one standard deviation of it, so a move only happens if it still pays off when the model is somewhat wrong.
-
-The true result of each plan, measured on the true response curves:
-
-| Model | Expected-value plan | Cautious plan |
-|---|---|---|
-| Without lift tests | loses €6,000 a week | loses €2,900 a week |
-| With two lift tests | loses €2,700 a week | holds today's split |
-| With two lift tests, budget +20% | gains €14,700 a week | gains €16,400 a week |
-
-![Budget plans](artifacts/p_revenue_calibrated/budget_plan.png)
-
-Why the expected-value plan fails: it acts on marginal returns, the extra pRevenue from the next euro, and those are what the model knows least about.
+It compares two rules:
+- **Expected value:** follow the model's central estimate.
+- **Cautious:** move budget only where the gain still holds if the model is somewhat wrong (expected gain minus one standard deviation).
 
 ![Marginal returns](artifacts/p_revenue/marginal_returns.png)
 
-The model puts social's marginal return at 1.1 against a true 3.0, because a prior had to fill in the shape of its curve.
+*What the next dollar returns at today's spend. The model puts social at 0.6 against a true 1.6, so it treats the channel with the most headroom as nearly exhausted. Average returns were recovered well; these marginal returns were not.*
 
-The two lift tests are a 50% increase in social and a 50% cut in affiliate. A test that switches a channel off only measures its average return. A test that changes spend near today's level measures what the next euro buys, which is what a budget decision needs. With the tests, affiliate's marginal return becomes accurate (2.1 against 2.3). Search remains overrated, so the cautious optimiser holds the budget rather than gamble. The next experiment should be a search test.
+![Budget plans without lift tests](artifacts/p_revenue/budget_plan.png)
 
-**Volume vs value:** the new-subscriptions model misses in the same places (display overrated, social underrated, though less so), and its cautious plan also holds. Ranking channels by volume or by value gives much the same answer here, because channel barely changes what a subscriber is worth.
+*Without experiments, the expected-value plan cuts social by 36% and loses $3.1k a week in reality. The cautious plan barely moves, which is the right instinct.*
 
-## What this means for real MMM work
+The true outcome of each plan, against media-driven pRevenue of about $127k a week:
 
-1. **Use an MMM to rank where to look, and experiments to decide.** Average returns were well recovered; marginal returns were not.
-2. **Never optimise on the posterior mean alone.** An 82% chance of winning was wrong here, because the uncertainty itself was understated.
-3. **Design lift tests around the decision.** To decide whether to scale a channel, test scaling it.
-4. **Watch the target, not just the model.** A pRevenue model that cannot see the channel, or that gets retrained, quietly changes what the MMM is measuring.
+| Model | Expected-value plan | Cautious plan |
+|---|---|---|
+| Without lift tests | −$3.1k a week (−2.4%) | −$0.2k a week (about even) |
+| With two lift tests | +$1.5k a week (+1.2%) | holds today's split |
+| With two lift tests, budget +20% | +$19.3k a week | +$18.5k a week |
+| Best possible reshuffle | +$4.2k a week (+3.3%) | |
+
+![Budget plans with lift tests](artifacts/p_revenue_calibrated/budget_plan.png)
+
+*With a social scale-up test and an influencer scale-down test, the expected-value plan trims display, the weakest channel, and gains in reality. The model still gives it only a 52% chance of beating today, so the cautious rule holds. Social remains underrated (0.9 against 1.6); a search test would be the next experiment.*
+
+The new-subscriber model tells the same story. Volume and value rank channels almost identically, consistent with channel having little effect on subscriber value.
 
 ## Limitations
 
-- The data is synthetic. The generator was written knowing what the model would assume, although the true process differs from the model's (multiplicative rather than additive effects, with subscriber-level churn).
-- The lift-test results in `data/lift_tests.json` are placeholders, set close to the true values. A follow-up project on geo-holdout test design will produce them from a simulated experiment.
-- Promo effects are modelled as fixed, and there's no regional breakdown.
+- The data is simulated. Its true process differs from the model's assumptions, but less than real data would.
+- The lift-test results in `data/lift_tests.json` are placeholders set close to the true values. A follow-up project on geo-test design will generate them from a simulated experiment.
+- One model covers all markets. Promo effects are fixed, and CTV is evaluated on its average weekly spend rather than by flight.
 
-## Repository
+## Next steps with real data
+
+1. **Run the two experiments for real:** a 50% scale-up of social and a scale-down of influencer, in matched regions, for at least six weeks. Then a search test, where the model is least sure.
+2. **Split the model by market tier,** sharing information across tiers (a hierarchical model), so each tier gets its own response curves.
+3. **Re-check the pRevenue assumptions** every quarter: whether channel still has little effect on value, and whether CLV model updates shift the series. Re-score history after any model change.
+4. **Refit monthly and track the forecast error** on new weeks, with an alert if it drifts above 8%.
+5. **Model CTV by flight,** to plan flight timing and length rather than a weekly average.
+
+---
+
+<details>
+<summary>Repository and how to run</summary>
 
 ```
 src/mmm/
-  simulate.py     subscriber-level data generator, with ground truth
-  transforms.py   adstock and saturation
-  data.py         scaling and model inputs
-  model.py        PyMC model, with ROI priors and lift tests
+  simulate.py     data generator, with ground truth
+  transforms.py   carryover and diminishing returns
+  data.py         model inputs
+  model.py        PyMC model, with return-per-dollar priors and lift tests
   optimize.py     response curves, marginal returns, budget optimiser
   truth.py        true response curves, for evaluation only
 scripts/
   fit_model.py        fit, check, compare with truth
-  optimize_budget.py  plans and their true outcome
+  optimize_budget.py  budget plans and their true outcome
   plot_data.py        overview of the simulated data
 data/             weekly data, subscriber data, lift tests, truth
-artifacts/        charts, tables and saved posteriors from each run
+artifacts/        charts, tables and saved model results
 tests/            unit tests
 ```
 
-## How to run
-
-Open in GitHub Codespaces (the dev container installs everything), or install locally with Python 3.12:
+Open in GitHub Codespaces (the dev container installs everything), or use Python 3.12:
 
 ```
 pip install -r requirements.txt && pip install -e .
-python -m mmm.simulate
-python -m pytest -q
-python scripts/fit_model.py --target p_revenue
-python scripts/fit_model.py --target p_revenue --calibrate
-python scripts/optimize_budget.py --target p_revenue --calibrated
+bash scripts/run_all.sh    # data, tests, four model fits, budget plans: about 20 minutes
 ```
 
-Exact numbers can vary slightly between machines.
-
-## Notes
+Numbers can vary slightly between machines.
+</details>
 
 Built by Milesh Vadodaria, with AI assistance for code. Modelling choices, checks and conclusions are my own.

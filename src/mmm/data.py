@@ -10,10 +10,10 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-MEDIA = ["search", "social", "display", "affiliate", "tv", "email"]
+MEDIA = ["search", "social", "display", "influencer", "ctv", "email"]
 MEDIA_COLUMNS = {c: f"spend_{c}" for c in MEDIA[:-1]} | {"email": "email_accounts_reached"}
 PAID = MEDIA[:-1]
-TARGETS = {"p_revenue": "p_revenue_eur", "new_subs": "new_subs"}
+TARGETS = {"p_revenue": "p_revenue_usd", "new_subs": "new_subs"}
 
 MAX_LAG = 12          # weeks of carryover the model can represent
 FOURIER_ORDER = 6     # pairs of yearly sine/cosine terms
@@ -25,10 +25,10 @@ class Prepared:
     dates: pd.DatetimeIndex
     target_name: str
     y: np.ndarray              # scaled target
-    y_scale: float             # multiply by this to get back to EUR or subscribers
+    y_scale: float             # multiply by this to get back to USD or subscribers
     media_lags: np.ndarray     # (weeks, lags, channels) scaled media, lag 0 first
     media_scale: np.ndarray    # per channel: raw units per 1.0 of scaled input
-    spend: pd.DataFrame        # raw weekly spend in EUR, paid channels only
+    spend: pd.DataFrame        # raw weekly spend in USD, paid channels only
     controls: np.ndarray       # (weeks, controls)
     control_names: list
     n_train: int
@@ -67,14 +67,14 @@ def prepare(df: pd.DataFrame, target: str = "p_revenue",
     scaled = raw_media / media_scale
     media_lags = np.stack([lag_matrix(scaled[:, i], MAX_LAG) for i in range(len(MEDIA))], axis=2)
 
-    first_price = df["price_monthly_eur"].iloc[0]
+    first_price = df["price_monthly_usd"].iloc[0]
     controls = pd.DataFrame({
         "trend": np.arange(len(df)) / (len(df) - 1),
         "promo_week": df["promo_week"],
         "flag_onboarding_v2": df["flag_onboarding_v2"],
         "flag_checkout_redesign": df["flag_checkout_redesign"],
         "flag_annual_plan": df["flag_annual_plan"],
-        "log_price_ratio": np.log(df["price_monthly_eur"] / first_price),
+        "log_price_ratio": np.log(df["price_monthly_usd"] / first_price),
     }, index=df.index).join(fourier_terms(df.index, FOURIER_ORDER))
 
     return Prepared(

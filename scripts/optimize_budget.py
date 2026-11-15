@@ -15,10 +15,11 @@ Compares two plans for the same weekly budget:
 
 Writes to artifacts/<run>/:
     response_curves.png    weekly contribution vs spend per channel, with truth
-    marginal_returns.png   extra target per extra EUR at today's spend, with truth
+    marginal_returns.png   extra target per extra USD at today's spend, with truth
     budget_plan.png        today vs both plans
     budget_plan.csv        both plans as a table
     budget_summary.json    expected gain, its uncertainty, and the true gain
+With --budget-change, the budget files get a suffix such as _budget+20pct.
 """
 
 import argparse
@@ -36,7 +37,7 @@ from mmm.truth import TrueCurves
 
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
-UNITS = {"p_revenue": ("pRevenue", "EUR"), "new_subs": ("New subscriptions", "subs")}
+UNITS = {"p_revenue": ("pRevenue", "USD"), "new_subs": ("New subscriptions", "subs")}
 PLANS = {"expected_value": 0.0, "cautious": 1.0}
 
 
@@ -65,7 +66,7 @@ def plot_response_curves(post, prep, truth, now, name, unit, path):
     axes.flat[-1].axis("off")
     handles, labels = axes.flat[0].get_legend_handles_labels()
     axes.flat[-1].legend(handles, labels, frameon=False, fontsize=9, loc="center left")
-    axes.flat[-1].text(0, 0.25, f"x axis: steady weekly spend (EUR)\ny axis: weekly {name} ({unit})",
+    axes.flat[-1].text(0, 0.25, f"x axis: steady weekly spend (USD)\ny axis: weekly {name} ({unit})",
                        color=MUTED, fontsize=9, transform=axes.flat[-1].transAxes)
     fig.suptitle(f"Response curves: weekly {name} by steady weekly spend",
                  x=0.01, ha="left", color=INK, fontsize=11)
@@ -75,16 +76,17 @@ def plot_response_curves(post, prep, truth, now, name, unit, path):
 
 
 def plot_marginal(marg, name, unit, path):
-    fig, ax = plt.subplots(figsize=(8, 3.4))
+    fig, ax = plt.subplots(figsize=(8, 3.8))
     y = np.arange(len(marg))[::-1]
     ax.errorbar(marg["marginal_mean"], y,
                 xerr=[marg["marginal_mean"] - marg["marginal_low"], marg["marginal_high"] - marg["marginal_mean"]],
                 fmt="o", color=BLUE, ms=6, capsize=3, lw=1.4, label="Model (90% interval)")
     ax.scatter(marg["true_marginal"], y, marker="D", s=40, color=ORANGE, zorder=3, label="Truth")
     ax.set_yticks(y, marg.index)
-    style(ax, f"Extra {name} per extra EUR at today's spend ({unit})")
-    ax.legend(frameon=False, fontsize=8, loc="lower right")
-    fig.tight_layout()
+    style(ax, f"Extra {name} ({unit}) per extra dollar at today's spend")
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=False, fontsize=8, loc="lower center", ncol=2)
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
     fig.savefig(path, dpi=150)
     plt.close(fig)
 
@@ -101,13 +103,13 @@ def plot_plans(plans, summary, unit, path):
     for yi, c in zip(y, PAID):
         for k, key in enumerate(["expected_value", "cautious"], start=1):
             ch = plans[key].loc[c, "change_%"]
-            txt = "held" if c == "tv" else f"{ch:+.0f}%"
+            txt = "held" if c == "ctv" else f"{ch:+.0f}%"
             ax.text(plans[key].loc[c, "planned_spend"] * 1.02, yi + 0.32 - 0.32 * k, txt,
                     va="center", color=INK, fontsize=8)
     ax.set_yticks(y, PAID)
     ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v / 1000:,.0f}k"))
     ev, ca = summary["plans"]["expected_value"], summary["plans"]["cautious"]
-    style(ax, f"Weekly spend (EUR). True gain per week: expected-value plan "
+    style(ax, f"Weekly spend (USD). True gain per week: expected-value plan "
               f"{ev['true_gain_per_week']:+,.0f} {unit}, cautious plan {ca['true_gain_per_week']:+,.0f} {unit}")
     ax.grid(axis="y", visible=False)
     ax.legend(frameon=False, fontsize=8, loc="lower right")
@@ -133,9 +135,10 @@ def main(target, budget_change, calibrated):
     plot_marginal(marg, name, unit, out / "marginal_returns.png")
 
     total = sum(now.values()) * (1 + budget_change / 100)
+    suffix = "" if budget_change == 0 else f"_budget{budget_change:+.0f}pct"
     true_now = truth.total(now)
     plans, summary = {}, {"run": run, "budget_change_%": budget_change,
-                          "weekly_budget_eur": round(total), "plans": {}}
+                          "weekly_budget_usd": round(total), "plans": {}}
     for key, risk in PLANS.items():
         plan = optimise(post, prep, total_budget=total, risk=risk)
         plans[key] = plan
@@ -152,14 +155,14 @@ def main(target, budget_change, calibrated):
             "true_gain_%_of_media": round(100 * true_gain / true_now, 1),
         }
     summary["marginal_returns"] = marg.round(4).to_dict(orient="index")
-    (out / "budget_summary.json").write_text(json.dumps(summary, indent=2))
+    (out / f"budget_summary{suffix}.json").write_text(json.dumps(summary, indent=2))
 
     table = pd.concat({k: v[["planned_spend", "change_%"]] for k, v in plans.items()}, axis=1)
     table.insert(0, "current_spend", plans["expected_value"]["current_spend"])
-    table.round(1).to_csv(out / "budget_plan.csv")
-    plot_plans(plans, summary, unit, out / "budget_plan.png")
+    table.round(1).to_csv(out / f"budget_plan{suffix}.csv")
+    plot_plans(plans, summary, unit, out / f"budget_plan{suffix}.png")
 
-    print(f"Run: {run}, weekly budget EUR {total:,.0f}\n")
+    print(f"Run: {run}, weekly budget USD {total:,.0f}\n")
     print(marg.round(3).to_string(), "\n")
     print(table.round(0).to_string(), "\n")
     for key, v in summary["plans"].items():

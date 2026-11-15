@@ -10,7 +10,7 @@ Usage:
 Writes to artifacts/<target>/:
     prior_predictive.png   do the priors allow plausible data, before seeing any?
     fit.png                fitted vs actual, including the 12 held-out weeks
-    recovery.png           estimated vs true return per EUR and share by channel
+    recovery.png           estimated vs true return per USD and share by channel
     recovery.csv           the same as a table
     diagnostics.json       convergence checks and holdout error
     posterior.nc           saved posterior, used by the app later
@@ -33,7 +33,7 @@ from mmm.model import build_model, roi_table
 
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 BLUE, ORANGE = "#2a78d6", "#eb6834"
-UNITS = {"p_revenue": "pRevenue (EUR / week)", "new_subs": "New subscriptions / week"}
+UNITS = {"p_revenue": "pRevenue (USD / week)", "new_subs": "New subscriptions / week"}
 
 
 def style(ax, title, dates=False):
@@ -54,7 +54,7 @@ def band(ax, dates, draws, color, label):
 
 
 def true_answers(prep, truth_dir="data/truth"):
-    """True share and return per EUR over the training weeks."""
+    """True share and return per USD over the training weeks."""
     col = {"p_revenue": "contributions_p_revenue.csv", "new_subs": "contributions_new_subs.csv"}
     contrib = pd.read_csv(Path(truth_dir) / col[prep.target_name], index_col="week")
     contrib = contrib.iloc[: prep.n_train]
@@ -149,7 +149,7 @@ def main(target, draws, tune, chains, seed, calibrate=False):
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 3.6))
     for ax, metric, title, chans in [
-        (axes[0], "roi", "Return per EUR of spend", PAID),
+        (axes[0], "roi", "Return per USD of spend", PAID),
         (axes[1], "share", "Share of target", MEDIA),
     ]:
         r = recovery.loc[chans]

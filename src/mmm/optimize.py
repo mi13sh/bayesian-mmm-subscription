@@ -13,8 +13,8 @@ Two ways to choose a plan:
                the model is somewhat wrong. On this project's data, the risk-0
                plan loses money in the real world; the risk-1 plan does not.
 
-TV is held at its current level by default. It runs in flights, and a steady
-weekly TV spend is not a plan anyone would buy, so the optimiser should not
+CTV is held at its current level by default. It runs in flights, and a steady
+weekly CTV spend is not a plan anyone would buy, so the optimiser should not
 pretend to set it.
 """
 
@@ -49,7 +49,7 @@ class Posterior:
 def weekly_contribution(post: Posterior, prep: Prepared, spend: dict) -> np.ndarray:
     """Posterior draws of steady-state weekly contribution for a spend plan.
 
-    `spend` maps paid channel -> weekly EUR. Returns (draws, len(spend)).
+    `spend` maps paid channel -> weekly USD. Returns (draws, len(spend)).
     """
     cols = [MEDIA.index(c) for c in spend]
     x = np.array(list(spend.values())) / prep.media_scale[cols]
@@ -90,7 +90,7 @@ def response_curves(post: Posterior, prep: Prepared, max_multiple: float = 2.5,
 
 
 def marginal_returns(post: Posterior, prep: Prepared, plan: dict | None = None) -> pd.DataFrame:
-    """Extra target per extra EUR at a spend level (default: today's), with 90% intervals."""
+    """Extra target per extra USD at a spend level (default: today's), with 90% intervals."""
     plan = plan or current_spend(prep)
     rows = {}
     for c, s in plan.items():
@@ -102,10 +102,10 @@ def marginal_returns(post: Posterior, prep: Prepared, plan: dict | None = None) 
 
 
 def optimise(post: Posterior, prep: Prepared, total_budget: float | None = None,
-             risk: float = 1.0, bounds: tuple = (0.5, 1.5), fixed: tuple = ("tv",)) -> pd.DataFrame:
+             risk: float = 1.0, bounds: tuple = (0.5, 1.5), fixed: tuple = ("ctv",)) -> pd.DataFrame:
     """Split a weekly budget across channels.
 
-    total_budget  weekly EUR across all paid channels (default: today's total)
+    total_budget  weekly USD across all paid channels (default: today's total)
     risk          0 maximises expected contribution; higher values penalise
                   plans whose gain over today is uncertain (see module notes)
     bounds        each free channel may move between these multiples of today's
@@ -122,7 +122,7 @@ def optimise(post: Posterior, prep: Prepared, total_budget: float | None = None,
     if free_budget < lo.sum() or free_budget > hi.sum():
         raise ValueError(
             f"Budget is outside what the bounds allow: free channels can take "
-            f"EUR {lo.sum():,.0f} to {hi.sum():,.0f} per week, asked for {free_budget:,.0f}."
+            f"USD {lo.sum():,.0f} to {hi.sum():,.0f} per week, asked for {free_budget:,.0f}."
         )
 
     def plan(z):

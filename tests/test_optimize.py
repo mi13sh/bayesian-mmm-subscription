@@ -8,7 +8,7 @@ from mmm.optimize import Posterior, current_spend, optimise, weekly_contribution
 
 @pytest.fixture(scope="module")
 def setup():
-    """A fake posterior: social pays far more per EUR than display."""
+    """A fake posterior: social pays far more per USD than display."""
     prep = prepare(load_weekly(), "p_revenue")
     rng = np.random.default_rng(0)
     n = 200
@@ -32,7 +32,7 @@ def test_plan_spends_the_budget_and_respects_bounds(setup):
     assert plan["planned_spend"].sum() == pytest.approx(sum(now.values()), rel=1e-4)
     ratio = plan["planned_spend"] / plan["current_spend"]
     assert ratio.between(0.5 - 1e-6, 1.5 + 1e-6).all()
-    assert plan.loc["tv", "planned_spend"] == pytest.approx(now["tv"])
+    assert plan.loc["ctv", "planned_spend"] == pytest.approx(now["ctv"])
 
 
 def test_plan_moves_money_towards_the_better_channel(setup):

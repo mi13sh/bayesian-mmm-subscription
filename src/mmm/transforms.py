@@ -12,7 +12,7 @@ def geometric_adstock(x: np.ndarray, decay: float, max_lag: int = 12) -> np.ndar
 
     Each week keeps `decay` of the previous week's effect. Weights are
     normalised to sum to 1, so the output stays in spend units and the
-    total effect of a euro does not depend on the decay rate.
+    total effect of a dollar does not depend on the decay rate.
     """
     if not 0 <= decay < 1:
         raise ValueError("decay must be in [0, 1)")

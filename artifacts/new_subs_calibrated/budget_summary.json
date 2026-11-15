@@ -1,0 +1,82 @@
+{
+  "run": "new_subs_calibrated",
+  "budget_change_%": 0.0,
+  "weekly_budget_usd": 72010,
+  "plans": {
+    "expected_value": {
+      "risk": 0.0,
+      "changes_%": {
+        "search": 11.0,
+        "social": 2.0,
+        "display": -40.0,
+        "influencer": -3.0,
+        "ctv": 0.0
+      },
+      "expected_gain_per_week": 6.36,
+      "gain_90_interval": [
+        -23.87,
+        36.38
+      ],
+      "holds_today": false,
+      "prob_beats_today": 0.652,
+      "true_gain_per_week": 19.14,
+      "true_gain_%_of_media": 2.1
+    },
+    "cautious": {
+      "risk": 1.0,
+      "changes_%": {
+        "search": 0.0,
+        "social": 0.0,
+        "display": 0.0,
+        "influencer": 0.0,
+        "ctv": 0.0
+      },
+      "expected_gain_per_week": 0.0,
+      "gain_90_interval": [
+        0.0,
+        0.0
+      ],
+      "holds_today": true,
+      "prob_beats_today": null,
+      "true_gain_per_week": 0.0,
+      "true_gain_%_of_media": 0.0
+    }
+  },
+  "marginal_returns": {
+    "search": {
+      "weekly_spend": 24006.0577,
+      "marginal_mean": 0.0093,
+      "marginal_low": 0.0018,
+      "marginal_high": 0.0191,
+      "true_marginal": 0.0114
+    },
+    "social": {
+      "weekly_spend": 22252.0192,
+      "marginal_mean": 0.0084,
+      "marginal_low": 0.0047,
+      "marginal_high": 0.0122,
+      "true_marginal": 0.012
+    },
+    "display": {
+      "weekly_spend": 7205.6538,
+      "marginal_mean": 0.0051,
+      "marginal_low": 0.0013,
+      "marginal_high": 0.0116,
+      "true_marginal": 0.0034
+    },
+    "influencer": {
+      "weekly_spend": 10229.0769,
+      "marginal_mean": 0.0079,
+      "marginal_low": 0.0037,
+      "marginal_high": 0.0133,
+      "true_marginal": 0.0095
+    },
+    "ctv": {
+      "weekly_spend": 8316.9423,
+      "marginal_mean": 0.0171,
+      "marginal_low": 0.0111,
+      "marginal_high": 0.0235,
+      "true_marginal": 0.0161
+    }
+  }
+}

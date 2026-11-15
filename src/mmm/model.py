@@ -12,9 +12,9 @@ Each channel has three parameters:
     slope      how sharply returns diminish
 and one effect size, beta: the most the channel can add in a week (scaled units).
 
-The priors on paid channels are set on return per EUR (ROI), not on beta. A
-prior like "paid channels usually return between 0.7 and 6 EUR of pRevenue per
-EUR" is something a marketer can argue about; a prior on beta is not. Beta is
+The priors on paid channels are set on return per dollar (ROI), not on beta. A
+prior like "paid channels usually return between 0.5 and 4.7 dollars of pRevenue
+per dollar" is something a marketer can argue about; a prior on beta is not. Beta is
 then whatever value delivers that ROI over the training weeks. This is the
 approach Google's Meridian takes, and it stops the model from handing flat,
 weakly identified channels a large effect that really belongs to the baseline.
@@ -27,9 +27,9 @@ import pytensor.tensor as pt
 
 from mmm.data import MAX_LAG, MEDIA, PAID, Prepared
 
-# Prior beliefs about carryover, as Beta(alpha, beta). TV is well known to carry
-# over for weeks; the digital channels mostly act within a week or two.
-DECAY_PRIOR = {c: (2.0, 3.0) for c in MEDIA} | {"tv": (4.0, 2.0)}
+# Prior beliefs about carryover, as Beta(alpha, beta). CTV is expected to carry
+# over for a few weeks; the digital channels mostly act within a week or two.
+DECAY_PRIOR = {c: (2.0, 3.0) for c in MEDIA} | {"ctv": (3.0, 2.0)}
 
 # How much each control is allowed to move a week, in scaled units (1.0 = an
 # average week). Seasonality terms are kept small so they cannot absorb media.
@@ -40,9 +40,9 @@ CONTROL_PRIOR_SD = {
 FOURIER_PRIOR_SD = 0.05
 
 # ROI prior per target: (median, spread on the log scale).
-# pRevenue: median 2 EUR per EUR, 90% of prior mass between about 0.6 and 6.3.
-# New subs: median 1 subscriber per 100 EUR (CPA of 100 EUR), same spread.
-ROI_PRIOR = {"p_revenue": (2.0, 0.7), "new_subs": (0.01, 0.7)}
+# pRevenue: median 1.5 USD per USD, 90% of prior mass between about 0.5 and 4.7.
+# New subs: median 1 subscriber per 100 USD (CPA of 100 USD), same spread.
+ROI_PRIOR = {"p_revenue": (1.5, 0.7), "new_subs": (0.01, 0.7)}
 EMAIL_BETA_SD = 0.2  # email has no spend, so it keeps a prior on its effect size
 
 
@@ -61,7 +61,7 @@ def build_model(prep: Prepared, rows: slice | None = None,
     """Build the MMM on the given rows (training weeks by default).
 
     `lift_tests` is a list of experiment results, each a dict with channel,
-    spend_before, spend_after (weekly EUR), lift_per_week and sd. Each one is
+    spend_before, spend_after (weekly USD), lift_per_week and sd. Each one is
     added as an observation of how much the response curve rises between the
     two spend levels. A test that scales spend up pins down the slope of the
     curve where budget decisions are made, which the weekly data alone cannot.
@@ -148,7 +148,7 @@ def contributions(idata, prep: Prepared, rows: slice | None = None,
 
 
 def roi_table(idata, prep: Prepared) -> pd.DataFrame:
-    """Contribution per EUR of spend for each paid channel, over the training weeks."""
+    """Contribution per USD of spend for each paid channel, over the training weeks."""
     rows = slice(0, prep.n_train)
     contrib = contributions(idata, prep, rows)                   # (draws, weeks, ch)
     total = contrib.sum(axis=1)                                  # (draws, ch)
