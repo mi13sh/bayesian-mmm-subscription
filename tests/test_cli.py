@@ -53,3 +53,38 @@ def test_roi_median_moves_the_prior():
     assert medians[2.5] == pytest.approx(2.5, rel=0.1)
     with pytest.raises(ValueError):
         build_model(prep, roi_median=-1.0)
+
+
+def test_simulate_accepts_seed_and_out():
+    from mmm.simulate import SEED, parse_args
+    a = parse_args([])
+    assert a.seed == SEED and a.out == "data"
+    a = parse_args(["--seed", "2027", "--out", "data/seeds/2027"])
+    assert a.seed == 2027 and a.out == "data/seeds/2027"
+
+
+def test_scripts_accept_data_dir():
+    fit, opt = load_script("fit_model"), load_script("optimize_budget")
+    assert fit.parse_args([]).data_dir == Path("data")
+    assert opt.parse_args([]).data_dir == Path("data")
+    assert fit.parse_args(["--data-dir", "data/seeds/2027"]).data_dir == Path("data/seeds/2027")
+    assert opt.parse_args(["--data-dir", "data/seeds/2027"]).data_dir == Path("data/seeds/2027")
+
+
+def test_lift_tests_follow_the_main_recipe(tmp_path):
+    """Built on the main world, the tests match the main ones' spends and are near the truth."""
+    import json
+    import shutil
+
+    for f in ["weekly.csv", "truth/params.json", "truth/contributions_p_revenue.csv"]:
+        (tmp_path / f).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(Path("data") / f, tmp_path / f)
+    mk = load_script("make_lift_tests")
+    tests, true_lifts = mk.make_tests(tmp_path, seed=1)
+    main = {t["channel"]: t for t in json.loads(Path("data/lift_tests.json").read_text())["p_revenue"]}
+    for t in tests:
+        m = main[t["channel"]]
+        assert t["spend_before"] == m["spend_before"]
+        assert abs(t["spend_after"] - m["spend_after"]) <= 10
+        assert t["sd"] / abs(true_lifts[t["channel"]]) == pytest.approx(m["sd"] / abs(m["lift_per_week"]), abs=0.02)
+        assert abs(t["lift_per_week"] - true_lifts[t["channel"]]) < 4 * t["sd"]

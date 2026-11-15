@@ -8,6 +8,9 @@ Usage:
         writes to artifacts/p_revenue_calibrated/
     python scripts/fit_model.py --target p_revenue --roi-prior 2.5         --out artifacts/sensitivity/roi_2.5
         changes the median of the return-per-dollar prior and saves elsewhere
+    python scripts/fit_model.py --target p_revenue --data-dir data/seeds/2027         --out artifacts/seeds/2027/p_revenue
+        fits another simulated world (weekly.csv, lift_tests.json and truth/
+        are read from --data-dir)
 
 Writes to artifacts/<target>/ (or --out):
     prior_predictive.png   do the priors allow plausible data, before seeing any?
@@ -71,15 +74,17 @@ def default_out(target, calibrate=False):
     return Path("artifacts") / (f"{target}_calibrated" if calibrate else target)
 
 
-def main(target, draws, tune, chains, seed, calibrate=False, roi_prior=None, out=None):
+def main(target, draws, tune, chains, seed, calibrate=False, roi_prior=None, out=None,
+         data_dir="data"):
+    data_dir = Path(data_dir)
     lift_tests = None
     out = Path(out) if out is not None else default_out(target, calibrate)
     if calibrate:
-        lift_tests = json.loads(Path("data/lift_tests.json").read_text())[target]
+        lift_tests = json.loads((data_dir / "lift_tests.json").read_text())[target]
         print(f"Calibrating with {len(lift_tests)} lift test(s)")
     roi_prior = ROI_PRIOR[target][0] if roi_prior is None else roi_prior
     out.mkdir(parents=True, exist_ok=True)
-    df = load_weekly()
+    df = load_weekly(data_dir / "weekly.csv")
     prep = prepare(df, target)
     train, hold = slice(0, prep.n_train), slice(prep.n_train, len(df))
     scale = prep.y_scale
@@ -128,6 +133,7 @@ def main(target, draws, tune, chains, seed, calibrate=False, roi_prior=None, out
         "target": target,
         "roi_prior_median": roi_prior,
         "calibrated": calibrate,
+        "data_dir": data_dir.as_posix(),
         "sampling_minutes": round(minutes, 1),
         "divergences": divergences,
         "max_r_hat": float(summary["r_hat"].max()),
@@ -152,7 +158,7 @@ def main(target, draws, tune, chains, seed, calibrate=False, roi_prior=None, out
 
     # 5. Compare with the truth
     est = roi_table(idata, prep)
-    recovery = est.join(true_answers(prep))
+    recovery = est.join(true_answers(prep, data_dir / "truth"))
     recovery.round(4).to_csv(out / "recovery.csv")
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 3.6))
@@ -199,6 +205,8 @@ def parse_args(argv=None):
                         "(default 1.5 for p_revenue, 0.01 for new_subs)")
     p.add_argument("--out", type=Path, default=None,
                    help="folder to save the run in (default artifacts/<target>[_calibrated])")
+    p.add_argument("--data-dir", type=Path, default=Path("data"),
+                   help="folder with weekly.csv, lift_tests.json and truth/ (default data/)")
     a = p.parse_args(argv)
     if a.roi_prior is not None and a.roi_prior <= 0:
         p.error("--roi-prior must be positive")
@@ -207,4 +215,5 @@ def parse_args(argv=None):
 
 if __name__ == "__main__":
     a = parse_args()
-    main(a.target, a.draws, a.tune, a.chains, a.seed, a.calibrate, a.roi_prior, a.out)
+    main(a.target, a.draws, a.tune, a.chains, a.seed, a.calibrate, a.roi_prior, a.out,
+         a.data_dir)

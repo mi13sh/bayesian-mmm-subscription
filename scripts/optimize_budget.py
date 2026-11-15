@@ -9,6 +9,7 @@ Usage:
 Needs artifacts/<run>/posterior.nc from scripts/fit_model.py, where <run> is
 the target name, plus "_calibrated" with --calibrated. --run-dir reads the
 posterior from another folder and writes the outputs there instead.
+--data-dir reads weekly.csv and truth/ from another simulated world.
 
 Compares two plans for the same weekly budget:
     expected value   maximises the model's expected contribution (risk 0)
@@ -120,15 +121,16 @@ def plot_plans(plans, summary, unit, path):
     plt.close(fig)
 
 
-def main(target, budget_change, calibrated, run_dir=None):
+def main(target, budget_change, calibrated, run_dir=None, data_dir="data"):
+    data_dir = Path(data_dir)
     run = f"{target}_calibrated" if calibrated else target
     out = Path("artifacts") / run
     if run_dir is not None:
         out, run = Path(run_dir), Path(run_dir).name
-    df = load_weekly()
+    df = load_weekly(data_dir / "weekly.csv")
     prep = prepare(df, target)
     post = Posterior.from_idata(az.from_netcdf(out / "posterior.nc"))
-    truth = TrueCurves(df, prep)
+    truth = TrueCurves(df, prep, truth_dir=data_dir / "truth")
     name, unit = UNITS[target]
     now = current_spend(prep)
 
@@ -187,9 +189,11 @@ def parse_args(argv=None):
     p.add_argument("--run-dir", type=Path, default=None,
                    help="folder holding posterior.nc (e.g. from fit_model.py --out); "
                         "outputs are written there too")
+    p.add_argument("--data-dir", type=Path, default=Path("data"),
+                   help="folder with weekly.csv and truth/ (default data/)")
     return p.parse_args(argv)
 
 
 if __name__ == "__main__":
     a = parse_args()
-    main(a.target, a.budget_change, a.calibrated, a.run_dir)
+    main(a.target, a.budget_change, a.calibrated, a.run_dir, a.data_dir)

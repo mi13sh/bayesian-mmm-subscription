@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Seed robustness: regenerable data and posteriors (python -m mmm.simulate --seed N, scripts/fit_model.py)
+data/seeds/
+artifacts/seeds/*/*/posterior.nc

@@ -26,8 +26,10 @@ Outputs:
     data/truth/subscriber_truth.csv.gz       expected revenue and true source per subscriber
 
 Run:  python -m mmm.simulate
+      python -m mmm.simulate --seed 2027 --out data/seeds/2027   (another simulated world)
 """
 
+import argparse
 import json
 from pathlib import Path
 
@@ -330,8 +332,8 @@ def simulate(seed: int = SEED):
     return weekly, subs, contrib_rev, contrib_subs, truth
 
 
-def main(out_dir: str = "data") -> None:
-    weekly, subs, contrib_rev, contrib_subs, truth = simulate()
+def main(out_dir: str = "data", seed: int = SEED) -> None:
+    weekly, subs, contrib_rev, contrib_subs, truth = simulate(seed)
     out = Path(out_dir)
     (out / "truth").mkdir(parents=True, exist_ok=True)
     for old in ["subscriber_source.csv.gz", "contributions.csv"]:
@@ -367,5 +369,13 @@ def main(out_dir: str = "data") -> None:
     print(summary.round(2).to_string())
 
 
+def parse_args(argv=None):
+    p = argparse.ArgumentParser(description="Generate the simulated business and its ground truth.")
+    p.add_argument("--seed", type=int, default=SEED, help=f"random seed (default {SEED}, the main results)")
+    p.add_argument("--out", default="data", help="folder to write to (default data/)")
+    return p.parse_args(argv)
+
+
 if __name__ == "__main__":
-    main()
+    a = parse_args()
+    main(a.out, a.seed)
