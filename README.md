@@ -9,7 +9,7 @@ A Bayesian marketing mix model (MMM) in PyMC for a multi-market subscription pro
 1. **The model reads the past well.** It forecasts 12 unseen weeks within 5.9%, and the true return of every channel falls inside its estimated range.
 2. **Acting on its best guess would lose money.** A budget optimiser that trusts the model's central estimate moves money out of paid social and loses $3.1k of pRevenue a week, about $160k a year.
 3. **The weak point is the next dollar, not the average one.** The model knows roughly what each channel has returned. It does not know what an extra dollar would return, and that is what a budget decision depends on.
-4. **Two experiments plus a cautious decision rule fix it.** With two lift tests in the model, its best plan turns a small real gain. The cautious rule declines to move budget on what is close to a coin flip.
+4. **Experiments fix it; caution limits the damage.** With two lift tests in the model, its best plan turns a small real gain under every starting assumption tested. Without them, a cautious decision rule shrinks the loss but cannot always avoid it.
 
 ## Business implications
 
@@ -92,6 +92,21 @@ The true outcome of each plan, against media-driven pRevenue of about $127k a we
 
 The new-subscriber model tells the same story. Volume and value rank channels almost identically, consistent with channel having little effect on subscriber value.
 
+## Does the starting assumption matter?
+
+The main model starts from the belief that a paid dollar most likely returns $1.50 of pRevenue. Refitting with $1.00 and $2.50 instead:
+
+| Prior median | Lift tests | Social's next dollar (true 1.6) | Expected-value plan (true gain/week) | Cautious plan (true gain/week) |
+|---|---|---|---|---|
+| 1.0 | none | 0.5 | −$2.9k | holds |
+| 1.5 (main) | none | 0.6 | −$3.1k | −$0.2k |
+| 2.5 | none | 0.6 | −$3.8k | −$1.0k |
+| 1.0 | two | 0.9 | +$1.9k | holds |
+| 1.5 (main) | two | 0.9 | +$1.5k | holds |
+| 2.5 | two | 1.0 | +$0.4k | holds |
+
+The conclusions hold. In all six runs every true channel return stays inside the model's 90% range. Without experiments, every version rates social's next dollar lowest, and the expected-value plan cuts social by over a third and loses money. With the two lift tests, every version gains. The tests do the real work: with an optimistic prior and no tests, even the cautious plan trims social and loses $1.0k a week, so caution limits losses rather than preventing them.
+
 ## Limitations
 
 - The data is simulated. Its true process differs from the model's assumptions, but less than real data would.
@@ -132,7 +147,7 @@ Open in GitHub Codespaces (the dev container installs everything), or use Python
 
 ```
 pip install -r requirements.txt && pip install -e .
-bash scripts/run_all.sh    # data, tests, four model fits, budget plans: about 20 minutes
+bash scripts/run_all.sh    # data, tests, four model fits, budget plans: about 40 minutes
 ```
 
 Numbers can vary slightly between machines.

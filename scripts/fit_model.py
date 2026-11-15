@@ -6,8 +6,10 @@ Usage:
     python scripts/fit_model.py --target p_revenue --calibrate
         adds the lift-test results in data/lift_tests.json to the model and
         writes to artifacts/p_revenue_calibrated/
+    python scripts/fit_model.py --target p_revenue --roi-prior 2.5         --out artifacts/sensitivity/roi_2.5
+        changes the median of the return-per-dollar prior and saves elsewhere
 
-Writes to artifacts/<target>/:
+Writes to artifacts/<target>/ (or --out):
     prior_predictive.png   do the priors allow plausible data, before seeing any?
     fit.png                fitted vs actual, including the 12 held-out weeks
     recovery.png           estimated vs true return per USD and share by channel
@@ -29,7 +31,7 @@ import pandas as pd
 import pymc as pm
 
 from mmm.data import MEDIA, PAID, load_weekly, prepare
-from mmm.model import build_model, roi_table
+from mmm.model import ROI_PRIOR, build_model, roi_table
 
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 BLUE, ORANGE = "#2a78d6", "#eb6834"
@@ -65,13 +67,17 @@ def true_answers(prep, truth_dir="data/truth"):
     return out
 
 
-def main(target, draws, tune, chains, seed, calibrate=False):
+def default_out(target, calibrate=False):
+    return Path("artifacts") / (f"{target}_calibrated" if calibrate else target)
+
+
+def main(target, draws, tune, chains, seed, calibrate=False, roi_prior=None, out=None):
     lift_tests = None
-    out = Path("artifacts") / target
+    out = Path(out) if out is not None else default_out(target, calibrate)
     if calibrate:
         lift_tests = json.loads(Path("data/lift_tests.json").read_text())[target]
-        out = Path("artifacts") / f"{target}_calibrated"
         print(f"Calibrating with {len(lift_tests)} lift test(s)")
+    roi_prior = ROI_PRIOR[target][0] if roi_prior is None else roi_prior
     out.mkdir(parents=True, exist_ok=True)
     df = load_weekly()
     prep = prepare(df, target)
@@ -79,7 +85,7 @@ def main(target, draws, tune, chains, seed, calibrate=False):
     scale = prep.y_scale
 
     # 1. Prior predictive check
-    model = build_model(prep, train, lift_tests)
+    model = build_model(prep, train, lift_tests, roi_median=roi_prior)
     with model:
         prior = pm.sample_prior_predictive(draws=500, random_seed=seed)
     fig, ax = plt.subplots(figsize=(10, 3.5))
@@ -120,6 +126,8 @@ def main(target, draws, tune, chains, seed, calibrate=False):
     lo, hi = np.quantile(pred_hold, [0.05, 0.95], axis=0)
     diagnostics = {
         "target": target,
+        "roi_prior_median": roi_prior,
+        "calibrated": calibrate,
         "sampling_minutes": round(minutes, 1),
         "divergences": divergences,
         "max_r_hat": float(summary["r_hat"].max()),
@@ -177,7 +185,7 @@ def main(target, draws, tune, chains, seed, calibrate=False):
     print(recovery.round(3).to_string())
 
 
-if __name__ == "__main__":
+def parse_args(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument("--target", choices=["p_revenue", "new_subs"], default="p_revenue")
     p.add_argument("--draws", type=int, default=1000)
@@ -186,5 +194,17 @@ if __name__ == "__main__":
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--calibrate", action="store_true",
                    help="add the lift tests in data/lift_tests.json to the model")
-    a = p.parse_args()
-    main(a.target, a.draws, a.tune, a.chains, a.seed, a.calibrate)
+    p.add_argument("--roi-prior", type=float, default=None,
+                   help="median of the return-per-dollar prior on paid channels "
+                        "(default 1.5 for p_revenue, 0.01 for new_subs)")
+    p.add_argument("--out", type=Path, default=None,
+                   help="folder to save the run in (default artifacts/<target>[_calibrated])")
+    a = p.parse_args(argv)
+    if a.roi_prior is not None and a.roi_prior <= 0:
+        p.error("--roi-prior must be positive")
+    return a
+
+
+if __name__ == "__main__":
+    a = parse_args()
+    main(a.target, a.draws, a.tune, a.chains, a.seed, a.calibrate, a.roi_prior, a.out)

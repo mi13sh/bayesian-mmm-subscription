@@ -4,16 +4,18 @@ Usage:
     python scripts/optimize_budget.py --target p_revenue
     python scripts/optimize_budget.py --target p_revenue --calibrated
     python scripts/optimize_budget.py --target p_revenue --budget-change 20
+    python scripts/optimize_budget.py --target p_revenue --run-dir artifacts/sensitivity/roi_2.5
 
 Needs artifacts/<run>/posterior.nc from scripts/fit_model.py, where <run> is
-the target name, plus "_calibrated" with --calibrated.
+the target name, plus "_calibrated" with --calibrated. --run-dir reads the
+posterior from another folder and writes the outputs there instead.
 
 Compares two plans for the same weekly budget:
     expected value   maximises the model's expected contribution (risk 0)
     cautious         only moves budget where the gain survives the model's
                      uncertainty (risk 1, the default in mmm.optimize)
 
-Writes to artifacts/<run>/:
+Writes to artifacts/<run>/ (or --run-dir):
     response_curves.png    weekly contribution vs spend per channel, with truth
     marginal_returns.png   extra target per extra USD at today's spend, with truth
     budget_plan.png        today vs both plans
@@ -118,9 +120,11 @@ def plot_plans(plans, summary, unit, path):
     plt.close(fig)
 
 
-def main(target, budget_change, calibrated):
+def main(target, budget_change, calibrated, run_dir=None):
     run = f"{target}_calibrated" if calibrated else target
     out = Path("artifacts") / run
+    if run_dir is not None:
+        out, run = Path(run_dir), Path(run_dir).name
     df = load_weekly()
     prep = prepare(df, target)
     post = Posterior.from_idata(az.from_netcdf(out / "posterior.nc"))
@@ -173,12 +177,19 @@ def main(target, budget_change, calibrated):
               f"P(beats today) {v['prob_beats_today']:.0%}  true {v['true_gain_per_week']:+,.0f} {unit}/week")
 
 
-if __name__ == "__main__":
+def parse_args(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument("--target", choices=["p_revenue", "new_subs"], default="p_revenue")
     p.add_argument("--budget-change", type=float, default=0.0,
                    help="percent change in total weekly budget, e.g. 20 or -10")
     p.add_argument("--calibrated", action="store_true",
                    help="use the posterior fitted with lift tests")
-    a = p.parse_args()
-    main(a.target, a.budget_change, a.calibrated)
+    p.add_argument("--run-dir", type=Path, default=None,
+                   help="folder holding posterior.nc (e.g. from fit_model.py --out); "
+                        "outputs are written there too")
+    return p.parse_args(argv)
+
+
+if __name__ == "__main__":
+    a = parse_args()
+    main(a.target, a.budget_change, a.calibrated, a.run_dir)

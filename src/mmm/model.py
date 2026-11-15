@@ -57,8 +57,12 @@ def _media_effect(media, decay, half_sat, slope):
 
 
 def build_model(prep: Prepared, rows: slice | None = None,
-                lift_tests: list | None = None) -> pm.Model:
+                lift_tests: list | None = None, roi_median: float | None = None) -> pm.Model:
     """Build the MMM on the given rows (training weeks by default).
+
+    `roi_median` overrides the median of the return-per-dollar prior (default:
+    ROI_PRIOR for the target). The spread stays the same; used to check how
+    much the results depend on the prior.
 
     `lift_tests` is a list of experiment results, each a dict with channel,
     spend_before, spend_after (weekly USD), lift_per_week and sd. Each one is
@@ -83,8 +87,11 @@ def build_model(prep: Prepared, rows: slice | None = None,
         slope = pm.Gamma("slope", alpha=6, beta=4, dims="channel")
 
         # Effect size implied by each paid channel's ROI over the training weeks
-        roi_median, roi_sd = ROI_PRIOR[prep.target_name]
-        roi = pm.LogNormal("roi", mu=np.log(roi_median), sigma=roi_sd, dims="paid_channel")
+        default_median, roi_sd = ROI_PRIOR[prep.target_name]
+        roi_median = default_median if roi_median is None else roi_median
+        if roi_median <= 0:
+            raise ValueError("roi_median must be positive")
+        roi =pm.LogNormal("roi", mu=np.log(roi_median), sigma=roi_sd, dims="paid_channel")
         train_media = pt.constant(prep.media_lags[: prep.n_train])
         train_sat = _media_effect(train_media, decay, half_sat, slope).sum(axis=0)
         n_paid = len(PAID)

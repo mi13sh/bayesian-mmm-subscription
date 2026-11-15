@@ -1,0 +1,12 @@
+{
+  "target": "p_revenue",
+  "roi_prior_median": 1.0,
+  "calibrated": false,
+  "sampling_minutes": 2.1,
+  "divergences": 0,
+  "max_r_hat": 1.0066289548128227,
+  "min_ess_bulk": 627.0499919382223,
+  "train_mape": 0.032,
+  "holdout_mape": 0.0592,
+  "holdout_coverage_90": 0.75
+}
