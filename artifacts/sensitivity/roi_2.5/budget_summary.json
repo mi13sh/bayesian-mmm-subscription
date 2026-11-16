@@ -6,76 +6,76 @@
     "expected_value": {
       "risk": 0.0,
       "changes_%": {
-        "search": 21.0,
-        "social": -38.0,
-        "display": 3.0,
-        "influencer": 30.0,
+        "search": 18.0,
+        "social": -36.0,
+        "display": 4.0,
+        "influencer": 33.0,
         "ctv": 0.0
       },
-      "expected_gain_per_week": 3184.82,
+      "expected_gain_per_week": 2914.56,
       "gain_90_interval": [
-        -4345.85,
-        10831.75
+        -3874.25,
+        10189.46
       ],
       "holds_today": false,
       "prob_beats_today": 0.757,
-      "true_gain_per_week": -3836.61,
+      "true_gain_per_week": -3752.76,
       "true_gain_%_of_media": -3.0
     },
     "cautious": {
       "risk": 1.0,
       "changes_%": {
-        "search": 6.0,
-        "social": -12.0,
+        "search": 5.0,
+        "social": -11.0,
         "display": 4.0,
-        "influencer": 10.0,
+        "influencer": 9.0,
         "ctv": 0.0
       },
-      "expected_gain_per_week": 1646.8,
+      "expected_gain_per_week": 1391.21,
       "gain_90_interval": [
-        -581.89,
-        3872.87
+        -464.52,
+        3434.41
       ],
       "holds_today": false,
-      "prob_beats_today": 0.876,
-      "true_gain_per_week": -999.64,
-      "true_gain_%_of_media": -0.8
+      "prob_beats_today": 0.893,
+      "true_gain_per_week": -900.59,
+      "true_gain_%_of_media": -0.7
     }
   },
   "marginal_returns": {
     "search": {
       "weekly_spend": 24006.0577,
-      "marginal_mean": 1.3056,
-      "marginal_low": 0.3714,
-      "marginal_high": 2.5067,
+      "marginal_mean": 1.2535,
+      "marginal_low": 0.3464,
+      "marginal_high": 2.5362,
       "true_marginal": 1.7004
     },
     "social": {
       "weekly_spend": 22252.0192,
-      "marginal_mean": 0.6089,
-      "marginal_low": 0.2283,
-      "marginal_high": 1.092,
+      "marginal_mean": 0.6133,
+      "marginal_low": 0.2118,
+      "marginal_high": 1.0868,
       "true_marginal": 1.5979
     },
     "display": {
       "weekly_spend": 7205.6538,
-      "marginal_mean": 1.0435,
-      "marginal_low": 0.2835,
-      "marginal_high": 2.305,
+      "marginal_mean": 1.0434,
+      "marginal_low": 0.2777,
+      "marginal_high": 2.399,
       "true_marginal": 0.4832
     },
     "influencer": {
       "weekly_spend": 10229.0769,
-      "marginal_mean": 1.4171,
-      "marginal_low": 0.3417,
-      "marginal_high": 3.1976,
+      "marginal_mean": 1.4307,
+      "marginal_low": 0.3618,
+      "marginal_high": 3.0714,
       "true_marginal": 1.0882
     },
     "ctv": {
       "weekly_spend": 8316.9423,
-      "marginal_mean": 2.2202,
-      "marginal_low": 1.4953,
-      "marginal_high": 3.0182,
+      "marginal_mean": 2.1997,
+      "marginal_low": 1.4847,
+      "marginal_high": 3.0384,
       "true_marginal": 2.5626
     }
   }

@@ -3,14 +3,9 @@
 Usage (after the runs below exist):
     python scripts/seed_robustness.py
 
-Seed 2026 is the main world (artifacts/p_revenue[_calibrated]). Each other seed
-comes from
-    python -m mmm.simulate --seed 2027 --out data/seeds/2027
-    python scripts/make_lift_tests.py --data-dir data/seeds/2027 --seed 2027
-    python scripts/fit_model.py --target p_revenue [--calibrate] \\
-        --data-dir data/seeds/2027 --out artifacts/seeds/2027/p_revenue[_calibrated]
-    python scripts/optimize_budget.py --target p_revenue \\
-        --data-dir data/seeds/2027 --run-dir artifacts/seeds/2027/p_revenue[_calibrated]
+Seed 2026 is the main world (artifacts/p_revenue[_calibrated]). The other
+seeds are simulated, given their own lift tests, fitted and optimised by
+scripts/run_robustness.sh, which ends by running this script.
 
 Uses only budget_summary.json from each run (its true gains were written by the
 evaluation code).

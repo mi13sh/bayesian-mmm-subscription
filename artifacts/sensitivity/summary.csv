@@ -1,7 +1,7 @@
 roi_prior,lift_tests,true_roi_inside_90,marginal_ranking,social_marginal,ev_social_change_%,ev_prob_beats_today,ev_true_gain,cautious_holds,cautious_true_gain
-1.0,False,5/5,ctv > influencer > search > display > social,0.5,-35.0,0.659,-2916,True,0
-1.5,False,5/5,ctv > search > influencer > display > social,0.57,-36.0,0.701,-3089,False,-247
-2.5,False,5/5,ctv > influencer > search > display > social,0.61,-38.0,0.757,-3837,False,-1000
-1.0,True,5/5,ctv > search > influencer > social > display,0.9,-0.0,0.59,1892,True,0
-1.5,True,5/5,ctv > search > influencer > social > display,0.93,-5.0,0.521,1500,True,0
-2.5,True,5/5,ctv > search > display > social > influencer,0.98,-11.0,0.559,372,True,0
+1.0,False,5/5,ctv > search > influencer > display > social,0.49,-38.0,0.661,-3116,True,0
+1.5,False,5/5,ctv > influencer > search > display > social,0.55,-37.0,0.694,-3453,False,-415
+2.5,False,5/5,ctv > influencer > search > display > social,0.61,-36.0,0.757,-3753,False,-901
+1.0,True,5/5,ctv > search > influencer > social > display,0.76,-9.0,0.529,1051,True,0
+1.5,True,5/5,ctv > search > influencer > display > social,0.79,-16.0,0.541,122,True,0
+2.5,True,5/5,ctv > search > display > influencer > social,0.86,-17.0,0.599,-420,True,0

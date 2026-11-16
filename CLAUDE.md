@@ -15,8 +15,8 @@ Portfolio project by Milesh Vadodaria. Bayesian marketing mix model in PyMC on s
 - `src/mmm/model.py` PyMC model: ROI (return per dollar) priors on paid channels, optional lift tests as observations
 - `src/mmm/optimize.py` response curves, marginal returns, risk-aware optimiser (ctv held fixed)
 - `src/mmm/truth.py` true response curves, evaluation only
-- `scripts/fit_model.py`, `scripts/optimize_budget.py`, `scripts/plot_data.py`, `scripts/run_all.sh`
-- `data/lift_tests.json` placeholder lift tests (to be replaced by project 2, a geo-test designer)
+- `scripts/fit_model.py`, `scripts/optimize_budget.py`, `scripts/plot_data.py`, `scripts/make_lift_tests.py`, `scripts/seed_robustness.py`, `scripts/run_all.sh`, `scripts/run_robustness.sh`
+- `data/lift_tests.json` simulated lift tests (true lift plus measurement error, `scripts/make_lift_tests.py`; true lifts in `data/truth/`). Project 2, a geo-test designer, covers running them
 - `artifacts/<run>/` charts, tables, `posterior.nc` per run (`p_revenue`, `p_revenue_calibrated`, `new_subs`, `new_subs_calibrated`)
 
 ## Commands
@@ -24,7 +24,7 @@ Portfolio project by Milesh Vadodaria. Bayesian marketing mix model in PyMC on s
 - Fit: `python scripts/fit_model.py --target p_revenue [--calibrate]`
 - Budget plans: `python scripts/optimize_budget.py --target p_revenue [--calibrated] [--budget-change 20]`
 - Prior sensitivity: `python scripts/fit_model.py --target p_revenue --roi-prior 2.5 [--calibrate] --out artifacts/sensitivity/roi_2.5[_calibrated]`, then `python scripts/optimize_budget.py --target p_revenue --run-dir <that folder>`, then `python scripts/prior_sensitivity.py`
-- Everything: `bash scripts/run_all.sh`
+- Everything: `bash scripts/run_all.sh`, then `bash scripts/run_robustness.sh` (seeds 2027-2030; per-seed data and runs are git-ignored, only `artifacts/seeds/runs.csv` and `summary.csv` are committed)
 - Sampler is nutpie (`nuts_sampler="nutpie"`), 4 chains x 1000 draws, target_accept 0.95.
 
 ## Rules
@@ -38,6 +38,6 @@ Portfolio project by Milesh Vadodaria. Bayesian marketing mix model in PyMC on s
 Done: generator, model, lift-test calibration, risk-aware optimiser, README.
 To do before final:
 1. [x] Prior sensitivity: refit with ROI prior median 1.0 and 2.5 (pRevenue) and report whether channel ranking and budget conclusions hold. Done: `artifacts/sensitivity/`, README section "Does the starting assumption matter?".
-2. Robustness across simulated worlds: rerun the full pipeline on 5 seeds and report how often each plan beats today in truth.
+2. [x] Robustness across simulated worlds: rerun the pRevenue pipeline on 5 seeds and report how often each plan beats today in truth. Done: `scripts/run_robustness.sh`, `artifacts/seeds/`, README section "Does it hold beyond one simulated business?".
 3. Headline chart at the top of the README.
 4. Streamlit app and optional AI tab: deferred to the portfolio-wide apps phase.

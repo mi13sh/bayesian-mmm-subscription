@@ -221,4 +221,5 @@ __marimo__/
 
 # Seed robustness: regenerable data and posteriors (python -m mmm.simulate --seed N, scripts/fit_model.py)
 data/seeds/
-artifacts/seeds/*/*/posterior.nc
+# per-seed runs (posteriors, charts); only artifacts/seeds/runs.csv and summary.csv are committed
+artifacts/seeds/*/

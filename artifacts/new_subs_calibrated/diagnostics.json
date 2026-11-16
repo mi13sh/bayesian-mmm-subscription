@@ -1,10 +1,13 @@
 {
   "target": "new_subs",
-  "sampling_minutes": 2.9,
+  "roi_prior_median": 0.01,
+  "calibrated": true,
+  "data_dir": "data",
+  "sampling_minutes": 1.8,
   "divergences": 0,
-  "max_r_hat": 1.0057860390556108,
-  "min_ess_bulk": 619.0116076800937,
+  "max_r_hat": 1.0070625257529038,
+  "min_ess_bulk": 718.7101276060317,
   "train_mape": 0.0312,
-  "holdout_mape": 0.0489,
+  "holdout_mape": 0.049,
   "holdout_coverage_90": 0.8333333333333334
 }

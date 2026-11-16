@@ -160,6 +160,13 @@ def main(target, budget_change, calibrated, run_dir=None, data_dir="data"):
             "true_gain_per_week": round(true_gain, 2),
             "true_gain_%_of_media": round(100 * true_gain / true_now, 1),
         }
+    best = truth.best_plan(now, total)
+    best_gain = truth.total(best) - true_now
+    summary["true_best"] = {
+        "changes_%": {c: round(100 * (best[c] / now[c] - 1)) for c in now},
+        "true_gain_per_week": round(best_gain, 2),
+        "true_gain_%_of_media": round(100 * best_gain / true_now, 1),
+    }
     summary["marginal_returns"] = marg.round(4).to_dict(orient="index")
     (out / f"budget_summary{suffix}.json").write_text(json.dumps(summary, indent=2))
 
@@ -177,6 +184,8 @@ def main(target, budget_change, calibrated, run_dir=None, data_dir="data"):
             continue
         print(f"{key:15s} expected {v['expected_gain_per_week']:+,.0f}  "
               f"P(beats today) {v['prob_beats_today']:.0%}  true {v['true_gain_per_week']:+,.0f} {unit}/week")
+    print(f"{'true best':15s} true {summary['true_best']['true_gain_per_week']:+,.0f} {unit}/week "
+          f"({summary['true_best']['true_gain_%_of_media']:+.1f}% of media-driven {name})")
 
 
 def parse_args(argv=None):

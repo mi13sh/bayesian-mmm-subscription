@@ -71,20 +71,25 @@ def test_scripts_accept_data_dir():
     assert opt.parse_args(["--data-dir", "data/seeds/2027"]).data_dir == Path("data/seeds/2027")
 
 
-def test_lift_tests_follow_the_main_recipe(tmp_path):
-    """Built on the main world, the tests match the main ones' spends and are near the truth."""
+def test_lift_tests_follow_the_recipe(tmp_path):
+    """Same spends as the main tests, both targets, measured near the truth with one shared error."""
     import json
     import shutil
 
-    for f in ["weekly.csv", "truth/params.json", "truth/contributions_p_revenue.csv"]:
+    for f in ["weekly.csv", "truth/params.json", "truth/contributions_p_revenue.csv",
+              "truth/contributions_new_subs.csv"]:
         (tmp_path / f).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(Path("data") / f, tmp_path / f)
     mk = load_script("make_lift_tests")
     tests, true_lifts = mk.make_tests(tmp_path, seed=1)
     main = {t["channel"]: t for t in json.loads(Path("data/lift_tests.json").read_text())["p_revenue"]}
-    for t in tests:
-        m = main[t["channel"]]
-        assert t["spend_before"] == m["spend_before"]
-        assert abs(t["spend_after"] - m["spend_after"]) <= 10
-        assert t["sd"] / abs(true_lifts[t["channel"]]) == pytest.approx(m["sd"] / abs(m["lift_per_week"]), abs=0.02)
-        assert abs(t["lift_per_week"] - true_lifts[t["channel"]]) < 4 * t["sd"]
+    for target in ["p_revenue", "new_subs"]:
+        for t in tests[target]:
+            m, true = main[t["channel"]], true_lifts[target][t["channel"]]
+            assert t["spend_before"] == m["spend_before"] and t["spend_after"] == m["spend_after"]
+            assert t["sd"] / abs(true) == pytest.approx(mk.REL_SE[t["channel"]], abs=0.02)
+            assert abs(t["lift_per_week"] - true) < 4 * t["sd"]
+    # one experiment: the error has the same sign for both targets
+    for a, b in zip(tests["p_revenue"], tests["new_subs"]):
+        ta, tb = true_lifts["p_revenue"][a["channel"]], true_lifts["new_subs"][b["channel"]]
+        assert np.sign(a["lift_per_week"] - ta) == np.sign(b["lift_per_week"] - tb)

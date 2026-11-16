@@ -42,6 +42,31 @@ class TrueCurves:
     def total(self, plan: dict) -> float:
         return sum(float(self(c, s)) for c, s in plan.items())
 
+    def best_plan(self, now: dict, total_budget: float, bounds=(0.5, 1.5), fixed=("ctv",)) -> dict:
+        """The truly best split of a weekly budget, under the optimiser's rules.
+
+        Same limits as mmm.optimize.optimise: fixed channels held at today's
+        spend, the others within `bounds` times today's. For evaluation only.
+        """
+        from scipy.optimize import minimize
+
+        free = [c for c in now if c not in fixed]
+        scale = np.array([now[c] for c in free])
+        free_budget = total_budget - sum(now[c] for c in fixed)
+
+        def plan(z):
+            return dict(zip(free, z * scale)) | {c: now[c] for c in fixed}
+
+        res = minimize(
+            lambda z: -self.total(plan(z)) / 1000, np.full(len(free), free_budget / scale.sum()),
+            method="SLSQP", bounds=[bounds] * len(free),
+            constraints=[{"type": "eq", "fun": lambda z: (z * scale).sum() / free_budget - 1}],
+            options={"maxiter": 300, "ftol": 1e-12},
+        )
+        if not res.success:
+            raise RuntimeError(f"True-optimum search failed: {res.message}")
+        return plan(res.x)
+
     def marginal(self, channel, weekly_spend) -> float:
         step = max(weekly_spend * 0.01, 1.0)
         return float((self(channel, weekly_spend + step) - self(channel, weekly_spend)) / step)

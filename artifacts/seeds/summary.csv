@@ -1,5 +1,5 @@
 lift_tests,plan,worlds,beats_today,holds_today,loses,median_true_gain,worst_true_gain,best_true_gain,median_gain_%_of_media
-False,Expected-value,5,2,0,3,-713,-3089,710,-0.6
-False,Cautious,5,1,3,1,0,-247,134,0.0
-True,Expected-value,5,5,0,0,1500,498,2307,1.2
-True,Cautious,5,2,3,0,0,0,1782,0.0
+False,Expected-value,5,2,0,3,-590,-3453,958,-0.5
+False,Cautious,5,1,3,1,0,-415,388,0.0
+True,Expected-value,5,5,0,0,1604,122,2378,1.2
+True,Cautious,5,2,3,0,0,0,1811,0.0

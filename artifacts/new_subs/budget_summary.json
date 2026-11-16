@@ -6,21 +6,21 @@
     "expected_value": {
       "risk": 0.0,
       "changes_%": {
-        "search": 25.0,
-        "social": -24.0,
+        "search": 21.0,
+        "social": -22.0,
         "display": -26.0,
-        "influencer": 13.0,
+        "influencer": 15.0,
         "ctv": 0.0
       },
-      "expected_gain_per_week": 14.09,
+      "expected_gain_per_week": 11.53,
       "gain_90_interval": [
-        -37.6,
-        75.0
+        -32.7,
+        65.62
       ],
       "holds_today": false,
-      "prob_beats_today": 0.625,
-      "true_gain_per_week": -5.98,
-      "true_gain_%_of_media": -0.7
+      "prob_beats_today": 0.601,
+      "true_gain_per_week": -3.58,
+      "true_gain_%_of_media": -0.4
     },
     "cautious": {
       "risk": 1.0,
@@ -42,40 +42,51 @@
       "true_gain_%_of_media": 0.0
     }
   },
+  "true_best": {
+    "changes_%": {
+      "search": 3,
+      "social": 20,
+      "display": -50,
+      "influencer": -15,
+      "ctv": 0
+    },
+    "true_gain_per_week": 27.05,
+    "true_gain_%_of_media": 3.0
+  },
   "marginal_returns": {
     "search": {
       "weekly_spend": 24006.0577,
-      "marginal_mean": 0.0096,
-      "marginal_low": 0.0021,
-      "marginal_high": 0.0199,
+      "marginal_mean": 0.0091,
+      "marginal_low": 0.0023,
+      "marginal_high": 0.019,
       "true_marginal": 0.0114
     },
     "social": {
       "weekly_spend": 22252.0192,
-      "marginal_mean": 0.0055,
-      "marginal_low": 0.0021,
-      "marginal_high": 0.0098,
+      "marginal_mean": 0.0056,
+      "marginal_low": 0.0019,
+      "marginal_high": 0.0101,
       "true_marginal": 0.012
     },
     "display": {
       "weekly_spend": 7205.6538,
-      "marginal_mean": 0.0054,
-      "marginal_low": 0.0014,
-      "marginal_high": 0.0124,
+      "marginal_mean": 0.0053,
+      "marginal_low": 0.0012,
+      "marginal_high": 0.0128,
       "true_marginal": 0.0034
     },
     "influencer": {
       "weekly_spend": 10229.0769,
-      "marginal_mean": 0.0084,
-      "marginal_low": 0.0017,
-      "marginal_high": 0.0197,
+      "marginal_mean": 0.0085,
+      "marginal_low": 0.0016,
+      "marginal_high": 0.0216,
       "true_marginal": 0.0095
     },
     "ctv": {
       "weekly_spend": 8316.9423,
       "marginal_mean": 0.0184,
-      "marginal_low": 0.0123,
-      "marginal_high": 0.0252,
+      "marginal_low": 0.0126,
+      "marginal_high": 0.0249,
       "true_marginal": 0.0161
     }
   }

@@ -6,6 +6,7 @@ set -euo pipefail
 
 rm -rf artifacts
 python -m mmm.simulate
+python scripts/make_lift_tests.py --data-dir data --seed 2026
 python scripts/plot_data.py
 python -m pytest -q
 
@@ -29,3 +30,4 @@ done
 python scripts/prior_sensitivity.py
 
 echo "All done. Charts and tables are in artifacts/"
+echo "For the robustness check across simulated worlds, run: bash scripts/run_robustness.sh"

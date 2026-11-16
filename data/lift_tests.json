@@ -1,15 +1,39 @@
 {
-  "_note": "Lift tests used to calibrate the MMM. These are placeholders for two 6-week geo tests: paid social raised by 50% in test regions, and influencer cut by 50%. Project 2 (geo-holdout test designer) will produce real readouts and replace them. Spend is weekly USD at total-business scale; lift_per_week is the measured change in the target per week (negative for a cut), sd its standard error.",
+  "_note": "Simulated lift tests: two 6-week geo tests, paid social raised by 50% in test regions and influencer cut by 50%. Each result is the true lift plus realistic measurement error (standard error about a quarter of the lift), made by scripts/make_lift_tests.py with seed 2026; the true lifts are in truth/lift_tests_truth.json, which the model never reads. Spend is weekly USD at total-business scale; lift_per_week is the measured change in the target per week (negative for a cut), sd its standard error.",
   "p_revenue": [
-    {"channel": "social", "spend_before": 22250, "spend_after": 33380,
-     "lift_per_week": 15000, "sd": 3800, "source": "placeholder scale-up geo test"},
-    {"channel": "influencer", "spend_before": 10230, "spend_after": 5115,
-     "lift_per_week": -6600, "sd": 1800, "source": "placeholder scale-down geo test"}
+    {
+      "channel": "social",
+      "spend_before": 22250,
+      "spend_after": 33375,
+      "lift_per_week": 12600,
+      "sd": 4000,
+      "source": "simulated scale-up geo test, seed 2026"
+    },
+    {
+      "channel": "influencer",
+      "spend_before": 10230,
+      "spend_after": 5115,
+      "lift_per_week": -6500,
+      "sd": 1900,
+      "source": "simulated scale-down geo test, seed 2026"
+    }
   ],
   "new_subs": [
-    {"channel": "social", "spend_before": 22250, "spend_after": 33380,
-     "lift_per_week": 113, "sd": 29, "source": "placeholder scale-up geo test"},
-    {"channel": "influencer", "spend_before": 10230, "spend_after": 5115,
-     "lift_per_week": -57, "sd": 16, "source": "placeholder scale-down geo test"}
+    {
+      "channel": "social",
+      "spend_before": 22250,
+      "spend_after": 33375,
+      "lift_per_week": 95,
+      "sd": 30,
+      "source": "simulated scale-up geo test, seed 2026"
+    },
+    {
+      "channel": "influencer",
+      "spend_before": 10230,
+      "spend_after": 5115,
+      "lift_per_week": -57,
+      "sd": 17,
+      "source": "simulated scale-down geo test, seed 2026"
+    }
   ]
 }

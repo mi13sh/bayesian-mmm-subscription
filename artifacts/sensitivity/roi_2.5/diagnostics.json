@@ -2,11 +2,12 @@
   "target": "p_revenue",
   "roi_prior_median": 2.5,
   "calibrated": false,
-  "sampling_minutes": 2.1,
+  "data_dir": "data",
+  "sampling_minutes": 1.7,
   "divergences": 0,
-  "max_r_hat": 1.0056197075974285,
-  "min_ess_bulk": 653.1278858340645,
+  "max_r_hat": 1.0070628407280389,
+  "min_ess_bulk": 653.9356739940695,
   "train_mape": 0.0317,
-  "holdout_mape": 0.0582,
+  "holdout_mape": 0.0583,
   "holdout_coverage_90": 0.6666666666666666
 }

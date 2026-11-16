@@ -7,15 +7,15 @@ A Bayesian marketing mix model (MMM) in PyMC for a multi-market subscription pro
 ## Key findings
 
 1. **The model reads the past well.** It forecasts 12 unseen weeks within 5.9%, and the true return of every channel falls inside its estimated range.
-2. **Acting on its best guess would lose money.** A budget optimiser that trusts the model's central estimate moves money out of paid social and loses $3.1k of pRevenue a week, about $160k a year.
+2. **Acting on its best guess is a bad bet.** Across five simulated businesses, a budget optimiser that trusts the model's central estimate lost money in three, by up to $3.5k a week, and gained at most $1.0k in the other two.
 3. **The weak point is the next dollar, not the average one.** The model knows roughly what each channel has returned. It does not know what an extra dollar would return, and that is what a budget decision depends on.
-4. **Experiments fix it; caution limits the damage.** With two lift tests in the model, its best plan turns a small real gain under every starting assumption tested. Without them, a cautious decision rule shrinks the loss but cannot always avoid it.
+4. **Experiments fix most of it; caution limits the damage.** With two lift tests in the model, its best plan beat today's split in all five worlds, though only by $0.1k a week in the main one, and under an optimistic starting assumption it still lost $0.4k a week. Lift tests plus the cautious rule never lost money in any run. Without the tests, the cautious rule shrinks the loss but cannot always avoid it.
 
 ## Business implications
 
 - **Use the MMM to decide where to test, and experiments to decide where to spend.** The model is reliable on direction and on average returns, but not on marginal ones.
-- **Reallocating a fixed budget is worth little here, and getting it wrong costs more.** The best possible reshuffle adds 3.3% to media-driven pRevenue; the naive plan loses 2.4%.
-- **Placing new budget well is worth more.** With 20% more budget, the calibrated model places the extra money for $19.3k a week of pRevenue, against $13.3k from the uncalibrated model: about $315k a year from the same spend.
+- **Reallocating a fixed budget is worth little here, and getting it wrong costs more.** The best possible reshuffle adds 3.3% to media-driven pRevenue; the naive plan loses 2.7%.
+- **Placing new budget well is worth more.** With 20% more budget, the calibrated model places the extra money for $17.6k a week of pRevenue, against $13.1k from the uncalibrated model: about $235k a year from the same spend.
 - **Design tests around the decision.** To decide whether to scale a channel, test scaling it. Switching it off only shows its average return.
 
 ## The business
@@ -49,7 +49,7 @@ Weekly pRevenue = baseline + the effect of each channel + noise.
 - **Carryover (adstock):** part of this week's spend still works next week. CTV carries over longest.
 - **Diminishing returns (saturation):** each extra dollar in a channel buys a little less than the one before.
 - **Priors on return per dollar:** a prior is the model's starting assumption. Each paid channel starts from "a dollar usually returns $0.5 to $4.7 of pRevenue", a belief a marketer can challenge.
-- **Lift tests (optional):** an experiment result, such as "raising social spend by 50% added $15k a week", enters as a measured point on that channel's response curve.
+- **Lift tests (optional):** an experiment result, such as "raising social spend by 50% added $12.6k a week", enters as a measured point on that channel's response curve.
 
 ## Does it work?
 
@@ -71,24 +71,24 @@ It compares two rules:
 
 ![Marginal returns](artifacts/p_revenue/marginal_returns.png)
 
-*What the next dollar returns at today's spend. The model puts social at 0.6 against a true 1.6, so it treats the channel with the most headroom as nearly exhausted. Average returns were recovered well; these marginal returns were not.*
+*What the next dollar returns at today's spend. The model puts social at 0.5 against a true 1.6, so it treats the channel with the most headroom as nearly exhausted. Average returns were recovered well; these marginal returns were not.*
 
 ![Budget plans without lift tests](artifacts/p_revenue/budget_plan.png)
 
-*Without experiments, the expected-value plan cuts social by 36% and loses $3.1k a week in reality. The cautious plan barely moves, which is the right instinct.*
+*Without experiments, the expected-value plan cuts social by 37% and loses $3.5k a week in reality. The cautious plan moves much less and loses $0.4k: the right instinct, but not enough.*
 
 The true outcome of each plan, against media-driven pRevenue of about $127k a week:
 
 | Model | Expected-value plan | Cautious plan |
 |---|---|---|
-| Without lift tests | −$3.1k a week (−2.4%) | −$0.2k a week (about even) |
-| With two lift tests | +$1.5k a week (+1.2%) | holds today's split |
-| With two lift tests, budget +20% | +$19.3k a week | +$18.5k a week |
+| Without lift tests | −$3.5k a week (−2.7%) | −$0.4k a week (−0.3%) |
+| With two lift tests | +$0.1k a week (+0.1%) | holds today's split |
+| With two lift tests, budget +20% | +$17.6k a week | +$18.0k a week |
 | Best possible reshuffle | +$4.2k a week (+3.3%) | |
 
 ![Budget plans with lift tests](artifacts/p_revenue_calibrated/budget_plan.png)
 
-*With a social scale-up test and an influencer scale-down test, the expected-value plan trims display, the weakest channel, and gains in reality. The model still gives it only a 52% chance of beating today, so the cautious rule holds. Social remains underrated (0.9 against 1.6); a search test would be the next experiment.*
+*With a social scale-up test and an influencer scale-down test, the expected-value plan moves money from social and display into search and only just gains in reality. The model gives it a 54% chance of beating today, so the cautious rule holds. The social test read low (+$12.6k against a true +$15.8k), so social stays underrated (0.8 against 1.6); a search test would be the next experiment.*
 
 The new-subscriber model tells the same story. Volume and value rank channels almost identically, consistent with channel having little effect on subscriber value.
 
@@ -98,19 +98,32 @@ The main model starts from the belief that a paid dollar most likely returns $1.
 
 | Prior median | Lift tests | Social's next dollar (true 1.6) | Expected-value plan (true gain/week) | Cautious plan (true gain/week) |
 |---|---|---|---|---|
-| 1.0 | none | 0.5 | −$2.9k | holds |
-| 1.5 (main) | none | 0.6 | −$3.1k | −$0.2k |
-| 2.5 | none | 0.6 | −$3.8k | −$1.0k |
-| 1.0 | two | 0.9 | +$1.9k | holds |
-| 1.5 (main) | two | 0.9 | +$1.5k | holds |
-| 2.5 | two | 1.0 | +$0.4k | holds |
+| 1.0 | none | 0.5 | −$3.1k | holds |
+| 1.5 (main) | none | 0.5 | −$3.5k | −$0.4k |
+| 2.5 | none | 0.6 | −$3.8k | −$0.9k |
+| 1.0 | two | 0.8 | +$1.1k | holds |
+| 1.5 (main) | two | 0.8 | +$0.1k | holds |
+| 2.5 | two | 0.9 | −$0.4k | holds |
 
-The conclusions hold. In all six runs every true channel return stays inside the model's 90% range. Without experiments, every version rates social's next dollar lowest, and the expected-value plan cuts social by over a third and loses money. With the two lift tests, every version gains. The tests do the real work: with an optimistic prior and no tests, even the cautious plan trims social and loses $1.0k a week, so caution limits losses rather than preventing them.
+Most conclusions hold. In all six runs every true channel return stays inside the model's 90% range. Without experiments, every version rates social's next dollar lowest, and the expected-value plan cuts social by over a third and loses money. The lift tests cut the losses: the expected-value plan gains under two of the three priors and loses $0.4k a week under the optimistic one, and the cautious plan holds today's split under all three. With an optimistic prior and no tests, even the cautious plan trims social and loses $0.9k a week, so caution limits losses rather than preventing them.
+
+## Does it hold beyond one simulated business?
+
+A real project has one dataset and no known truth, so this is a check of the method, not a step you would run on live data. Four more businesses were simulated with different random seeds, each with its own lift tests measured with realistic error, and the analysis was repeated.
+
+| Lift tests | Plan | Beats today | Holds today | Loses | Median true gain per week (range) |
+|---|---|---|---|---|---|
+| none | Expected-value | 2 of 5 | 0 | 3 | −$0.6k (−$3.5k to +$1.0k) |
+| none | Cautious | 1 of 5 | 3 | 1 | $0 (−$0.4k to +$0.4k) |
+| two | Expected-value | 5 of 5 | 0 | 0 | +$1.6k (+$0.1k to +$2.4k) |
+| two | Cautious | 2 of 5 | 3 | 0 | $0 ($0 to +$1.8k) |
+
+Without experiments, the expected-value plan is a poor bet: it lost money in three of five worlds and gained little in the others. With the two lift tests, it beat today's split in all five. The cautious rule with lift tests never lost, but held today's split in three of the five.
 
 ## Limitations
 
 - The data is simulated. Its true process differs from the model's assumptions, but less than real data would.
-- The lift-test results in `data/lift_tests.json` are placeholders set close to the true values. A follow-up project on geo-test design will generate them from a simulated experiment.
+- The lift tests are simulated, not run. A follow-up project on geo-test design covers how to run and read them.
 - One model covers all markets. Promo effects are fixed, and CTV is evaluated on its average weekly spend rather than by flight.
 
 ## Next steps with real data
@@ -119,7 +132,8 @@ The conclusions hold. In all six runs every true channel return stays inside the
 2. **Split the model by market tier,** sharing information across tiers (a hierarchical model), so each tier gets its own response curves.
 3. **Re-check the pRevenue assumptions** every quarter: whether channel still has little effect on value, and whether CLV model updates shift the series. Re-score history after any model change.
 4. **Refit monthly and track the forecast error** on new weeks, with an alert if it drifts above 8%.
-5. **Model CTV by flight,** to plan flight timing and length rather than a weekly average.
+5. **Back-test on real data** by fitting on history up to a point and forecasting the following months, repeated several times; and track whether channel estimates stay stable from one monthly refit to the next.
+6. **Model CTV by flight,** to plan flight timing and length rather than a weekly average.
 
 ---
 
@@ -138,6 +152,8 @@ scripts/
   fit_model.py        fit, check, compare with truth
   optimize_budget.py  budget plans and their true outcome
   plot_data.py        overview of the simulated data
+  make_lift_tests.py  simulated lift tests: true lift plus measurement error
+  prior_sensitivity.py, seed_robustness.py   summaries of the checks
 data/             weekly data, subscriber data, lift tests, truth
 artifacts/        charts, tables and saved model results
 tests/            unit tests
@@ -147,7 +163,8 @@ Open in GitHub Codespaces (the dev container installs everything), or use Python
 
 ```
 pip install -r requirements.txt && pip install -e .
-bash scripts/run_all.sh    # data, tests, four model fits, budget plans: about 40 minutes
+bash scripts/run_all.sh         # data, tests, model fits, budget plans, prior check: about 40 minutes
+bash scripts/run_robustness.sh  # the same analysis on four more simulated businesses
 ```
 
 Numbers can vary slightly between machines.

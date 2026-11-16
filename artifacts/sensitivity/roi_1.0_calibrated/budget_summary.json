@@ -6,21 +6,21 @@
     "expected_value": {
       "risk": 0.0,
       "changes_%": {
-        "search": 7.0,
-        "social": -0.0,
-        "display": -25.0,
-        "influencer": 1.0,
+        "search": 12.0,
+        "social": -9.0,
+        "display": -19.0,
+        "influencer": 5.0,
         "ctv": 0.0
       },
-      "expected_gain_per_week": 251.09,
+      "expected_gain_per_week": 393.38,
       "gain_90_interval": [
-        -2555.46,
-        2814.9
+        -2602.02,
+        4232.98
       ],
       "holds_today": false,
-      "prob_beats_today": 0.59,
-      "true_gain_per_week": 1891.82,
-      "true_gain_%_of_media": 1.5
+      "prob_beats_today": 0.529,
+      "true_gain_per_week": 1051.26,
+      "true_gain_%_of_media": 0.8
     },
     "cautious": {
       "risk": 1.0,
@@ -45,37 +45,37 @@
   "marginal_returns": {
     "search": {
       "weekly_spend": 24006.0577,
-      "marginal_mean": 0.9828,
-      "marginal_low": 0.1933,
-      "marginal_high": 2.2792,
+      "marginal_mean": 0.9703,
+      "marginal_low": 0.1955,
+      "marginal_high": 2.1905,
       "true_marginal": 1.7004
     },
     "social": {
       "weekly_spend": 22252.0192,
-      "marginal_mean": 0.8992,
-      "marginal_low": 0.4259,
-      "marginal_high": 1.4008,
+      "marginal_mean": 0.7638,
+      "marginal_low": 0.2976,
+      "marginal_high": 1.2457,
       "true_marginal": 1.5979
     },
     "display": {
       "weekly_spend": 7205.6538,
-      "marginal_mean": 0.713,
-      "marginal_low": 0.1387,
-      "marginal_high": 1.8444,
+      "marginal_mean": 0.6865,
+      "marginal_low": 0.1468,
+      "marginal_high": 1.7693,
       "true_marginal": 0.4832
     },
     "influencer": {
       "weekly_spend": 10229.0769,
-      "marginal_mean": 0.9094,
-      "marginal_low": 0.4617,
-      "marginal_high": 1.4382,
+      "marginal_mean": 0.8815,
+      "marginal_low": 0.383,
+      "marginal_high": 1.4706,
       "true_marginal": 1.0882
     },
     "ctv": {
       "weekly_spend": 8316.9423,
-      "marginal_mean": 2.0021,
-      "marginal_low": 1.2958,
-      "marginal_high": 2.7819,
+      "marginal_mean": 2.0189,
+      "marginal_low": 1.3051,
+      "marginal_high": 2.8272,
       "true_marginal": 2.5626
     }
   }
