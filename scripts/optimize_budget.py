@@ -144,7 +144,8 @@ def main(target, budget_change, calibrated, run_dir=None, data_dir="data"):
     suffix = "" if budget_change == 0 else f"_budget{budget_change:+.0f}pct"
     true_now = truth.total(now)
     plans, summary = {}, {"run": run, "budget_change_%": budget_change,
-                          "weekly_budget_usd": round(total), "plans": {}}
+                          "weekly_budget_usd": round(total),
+                          "true_media_driven_per_week": round(true_now, 2), "plans": {}}
     for key, risk in PLANS.items():
         plan = optimise(post, prep, total_budget=total, risk=risk)
         plans[key] = plan

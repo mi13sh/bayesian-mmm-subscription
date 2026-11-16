@@ -9,11 +9,11 @@ A Bayesian marketing mix model (MMM) in PyMC for a multi-market subscription pro
 1. **The model reads the past well.** It forecasts 12 unseen weeks within 5.9%, and the true return of every channel falls inside its estimated range.
 2. **Acting on its best guess is a bad bet.** Across five simulated businesses, a budget optimiser that trusts the model's central estimate lost money in three, by up to $3.5k a week, and gained at most $1.0k in the other two.
 3. **The weak point is the next dollar, not the average one.** The model knows roughly what each channel has returned. It does not know what an extra dollar would return, and that is what a budget decision depends on.
-4. **Experiments fix most of it; caution limits the damage.** With two lift tests in the model, its best plan beat today's split in all five worlds, though only by $0.1k a week in the main one, and under an optimistic starting assumption it still lost $0.4k a week. Lift tests plus the cautious rule never lost money in any run. Without the tests, the cautious rule shrinks the loss but cannot always avoid it.
+4. **Experiments plus caution never lost money.** With two lift tests and the cautious rule, no run lost money, across five simulated businesses and three starting assumptions. Each falls short on its own: tests alone still lost $0.4k a week under an optimistic starting assumption, and caution alone could not always avoid a loss.
 
 ## Business implications
 
-- **Use the MMM to decide where to test, and experiments to decide where to spend.** The model is reliable on direction and on average returns, but not on marginal ones.
+- **Use the MMM to decide where to test, and experiments to decide where to spend.** The model is reliable on average returns, but not on marginal ones.
 - **Reallocating a fixed budget is worth little here, and getting it wrong costs more.** The best possible reshuffle adds 3.3% to media-driven pRevenue; the naive plan loses 2.7%.
 - **Placing new budget well is worth more.** With 20% more budget, the calibrated model places the extra money for $17.6k a week of pRevenue, against $13.1k from the uncalibrated model: about $235k a year from the same spend.
 - **Design tests around the decision.** To decide whether to scale a channel, test scaling it. Switching it off only shows its average return.
@@ -71,11 +71,11 @@ It compares two rules:
 
 ![Marginal returns](artifacts/p_revenue/marginal_returns.png)
 
-*What the next dollar returns at today's spend. The model puts social at 0.5 against a true 1.6, so it treats the channel with the most headroom as nearly exhausted. Average returns were recovered well; these marginal returns were not.*
+*What the next dollar returns at today's spend. The model ranks social lowest at 0.55, against a true 1.60, the third highest, and it is the one channel whose true value falls outside the model's range. Average returns were recovered; this marginal one was not.*
 
 ![Budget plans without lift tests](artifacts/p_revenue/budget_plan.png)
 
-*Without experiments, the expected-value plan cuts social by 37% and loses $3.5k a week in reality. The cautious plan moves much less and loses $0.4k: the right instinct, but not enough.*
+*Without experiments, the expected-value plan cuts social by 37%, moves the money into search and influencer, and loses $3.5k a week in reality. The cautious plan moves much less (social −6%) but still loses $0.4k a week.*
 
 The true outcome of each plan, against media-driven pRevenue of about $127k a week:
 
@@ -88,22 +88,22 @@ The true outcome of each plan, against media-driven pRevenue of about $127k a we
 
 ![Budget plans with lift tests](artifacts/p_revenue_calibrated/budget_plan.png)
 
-*With a social scale-up test and an influencer scale-down test, the expected-value plan moves money from social and display into search and only just gains in reality. The model gives it a 54% chance of beating today, so the cautious rule holds. The social test read low (+$12.6k against a true +$15.8k), so social stays underrated (0.8 against 1.6); a search test would be the next experiment.*
+*With a social scale-up test and an influencer scale-down test, the expected-value plan still cuts social (by 16%, not 37%), moves the money into search, and only just gains in reality (+$0.1k a week). The model gives it a 54% chance of beating today, so the cautious rule holds. The social test read low (+$12.6k against a true +$15.8k), so social stays underrated (0.79 against 1.60); search, where the model is least sure, would be the next test.*
 
-The new-subscriber model tells the same story. Volume and value rank channels almost identically, consistent with channel having little effect on subscriber value.
+The new-subscriber model tells the same story: without lift tests its expected-value plan loses 4 subscribers a week, with them it gains 15. Volume and value rank channels a little differently: in truth, influencer is second per dollar on subscribers but fourth on pRevenue.
 
 ## Does the starting assumption matter?
 
 The main model starts from the belief that a paid dollar most likely returns $1.50 of pRevenue. Refitting with $1.00 and $2.50 instead:
 
-| Prior median | Lift tests | Social's next dollar (true 1.6) | Expected-value plan (true gain/week) | Cautious plan (true gain/week) |
+| Prior median | Lift tests | Social's next dollar (true 1.60) | Expected-value plan (true gain/week) | Cautious plan (true gain/week) |
 |---|---|---|---|---|
-| 1.0 | none | 0.5 | −$3.1k | holds |
-| 1.5 (main) | none | 0.5 | −$3.5k | −$0.4k |
-| 2.5 | none | 0.6 | −$3.8k | −$0.9k |
-| 1.0 | two | 0.8 | +$1.1k | holds |
-| 1.5 (main) | two | 0.8 | +$0.1k | holds |
-| 2.5 | two | 0.9 | −$0.4k | holds |
+| 1.0 | none | 0.49 | −$3.1k | holds |
+| 1.5 (main) | none | 0.55 | −$3.5k | −$0.4k |
+| 2.5 | none | 0.61 | −$3.8k | −$0.9k |
+| 1.0 | two | 0.76 | +$1.1k | holds |
+| 1.5 (main) | two | 0.79 | +$0.1k | holds |
+| 2.5 | two | 0.86 | −$0.4k | holds |
 
 Most conclusions hold. In all six runs every true channel return stays inside the model's 90% range. Without experiments, every version rates social's next dollar lowest, and the expected-value plan cuts social by over a third and loses money. The lift tests cut the losses: the expected-value plan gains under two of the three priors and loses $0.4k a week under the optimistic one, and the cautious plan holds today's split under all three. With an optimistic prior and no tests, even the cautious plan trims social and loses $0.9k a week, so caution limits losses rather than preventing them.
 
@@ -151,7 +151,7 @@ src/mmm/
 scripts/
   fit_model.py        fit, check, compare with truth
   optimize_budget.py  budget plans and their true outcome
-  plot_data.py        overview of the simulated data
+  plot_data.py        overview of the simulated data, and facts quoted here
   make_lift_tests.py  simulated lift tests: true lift plus measurement error
   prior_sensitivity.py, seed_robustness.py   summaries of the checks
 data/             weekly data, subscriber data, lift tests, truth

@@ -1,5 +1,9 @@
-"""Quick visual check of the simulated data. Saves artifacts/data_overview.png."""
+"""Quick visual check of the simulated data.
 
+Saves artifacts/data_overview.png and artifacts/data_summary.json (facts quoted in the README).
+"""
+
+import json
 from pathlib import Path
 
 import matplotlib.dates as mdates
@@ -50,3 +54,17 @@ fig.tight_layout()
 Path("artifacts").mkdir(exist_ok=True)
 fig.savefig("artifacts/data_overview.png", dpi=150)
 print("Saved artifacts/data_overview.png")
+
+# Facts about the data quoted in the README
+spend = df[[c for c in df if c.startswith("spend_")]].sum(axis=1)
+facts = {
+    "weeks": len(df),
+    "new_subs_total": int(df["new_subs"].sum()),
+    "new_subs_per_week_min": int(df["new_subs"].min()),
+    "new_subs_per_week_max": int(df["new_subs"].max()),
+    "media_spend_per_week_mean": round(spend.mean()),
+    "weeks_with_media_spend_over_100k": int((spend > 100_000).sum()),
+    "corr_search_influencer_spend": round(df["spend_search"].corr(df["spend_influencer"]), 3),
+}
+Path("artifacts/data_summary.json").write_text(json.dumps(facts, indent=2) + "\n")
+print("Saved artifacts/data_summary.json")

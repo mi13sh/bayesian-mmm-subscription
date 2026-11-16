@@ -2,6 +2,7 @@
   "run": "p_revenue_calibrated",
   "budget_change_%": 20.0,
   "weekly_budget_usd": 86412,
+  "true_media_driven_per_week": 126953.47,
   "plans": {
     "expected_value": {
       "risk": 0.0,

@@ -2,6 +2,7 @@
   "run": "new_subs_calibrated",
   "budget_change_%": 0.0,
   "weekly_budget_usd": 72010,
+  "true_media_driven_per_week": 900.67,
   "plans": {
     "expected_value": {
       "risk": 0.0,
